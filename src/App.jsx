@@ -4,6 +4,7 @@ import {
   ArrowDownRight,
   ArrowRight,
   ArrowUpRight,
+  CalendarDays,
   Check,
   ChevronDown,
   HeartHandshake,
@@ -17,6 +18,7 @@ const childImage =
   "https://images.unsplash.com/photo-1761208663763-c4d30657c910?auto=format&fit=crop&w=1400&q=85";
 const olderAdultImage =
   "https://images.unsplash.com/photo-1773227060032-1bfb40b2b376?auto=format&fit=crop&w=1400&q=85";
+const heroImage = "/images/hero-home-care.jpg";
 
 const serviceItems = [
   {
@@ -132,8 +134,8 @@ function SiteHeader() {
                 {label}
               </NavLink>
             ))}
-            <Link className="header-cta" to="/find-care">
-              Find care <ArrowUpRight size={16} />
+            <Link className="header-cta" to="/contact?topic=appointment">
+              Book appointment <CalendarDays size={16} />
             </Link>
           </nav>
         </div>
@@ -165,46 +167,48 @@ function HomePage() {
   return (
     <>
       <main id="main">
-        <section className="hero wrap">
-          <div className="hero-copy">
-            <SectionLabel>Arizona care for real life</SectionLabel>
-            <h1>
-              Help for the day
-              <br />
-              <em>you’re having.</em>
-            </h1>
-            <p className="hero-deck">
-              A school pickup. A long afternoon. A parent who could use a hand.
-              Tell us what has been going on, and we’ll talk through what
-              support may be available in your Arizona community.
-            </p>
-            <div className="hero-actions">
-              <Link className="button button-dark" to="/contact">
-                Talk with our team <ArrowRight size={17} />
-              </Link>
-              <Link className="text-action" to="/services">
-                See care options <ArrowDownRight size={17} />
-              </Link>
-            </div>
-            <div className="hero-note">
-              <span className="note-dot" />
-              You can start with a question. No plan needed.
+        <section className="hero" aria-labelledby="home-title">
+          <div className="hero-art" aria-hidden="true">
+            <img src={heroImage} alt="" fetchPriority="high" />
+          </div>
+          <div className="wrap hero-inner">
+            <div className="hero-copy">
+              <SectionLabel>Arizona care for real life</SectionLabel>
+              <h1 id="home-title">
+                Help for the day
+                <br />
+                <em>you’re having.</em>
+              </h1>
+              <p className="hero-deck">
+                A school pickup. A long afternoon. A parent who could use a
+                hand. Tell us what has been going on, and we’ll talk through
+                what support may be available in your Arizona community.
+              </p>
+              <div className="hero-actions">
+                <Link
+                  className="button button-paper"
+                  to="/contact?topic=appointment"
+                >
+                  Book appointment <CalendarDays size={17} />
+                </Link>
+                <Link className="text-action" to="/services">
+                  See care options <ArrowDownRight size={17} />
+                </Link>
+              </div>
+              <div className="hero-note">
+                You can start with a question. No plan needed.
+              </div>
             </div>
           </div>
-          <div className="hero-art">
-            <div className="hero-image-frame">
-              <img
-                src={childImage}
-                alt="Children playing with toys in a classroom"
-              />
-            </div>
-            <div className="hero-caption">
-              <span>SUPPORT THAT STARTS WITH LISTENING</span>
-              <span>
-                Arizona <ArrowUpRight size={14} />
-              </span>
-            </div>
-          </div>
+          <a
+            className="hero-credit"
+            href="https://www.pexels.com/photo/caregiver-assisting-elderly-woman-in-home-setting-29372536/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Photo by Jsme MILA / Pexels
+            <ArrowUpRight size={12} />
+          </a>
         </section>
 
         <section className="pathway-band" aria-label="Care pathways">
@@ -746,26 +750,44 @@ function ContactPage() {
   const [status, setStatus] = useState("");
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL;
   const [topic, setTopic] = useState(
-    params.get("topic") === "careers" ? "Caregiver opportunities" : "",
+    params.get("topic") === "careers"
+      ? "Caregiver opportunities"
+      : params.get("topic") === "appointment"
+        ? "Care consultation / appointment"
+        : "",
   );
+  const isAppointment = topic === "Care consultation / appointment";
+  const localToday = new Date();
+  localToday.setMinutes(
+    localToday.getMinutes() - localToday.getTimezoneOffset(),
+  );
+  const minimumDate = localToday.toISOString().slice(0, 10);
 
   function handleSubmit(event) {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    if (formData.get("website")) {
+      setStatus("We could not process that request. Please try again.");
+      return;
+    }
     if (!contactEmail) {
       setStatus(
         "The care team’s official email address has not been added yet. Please confirm it before publishing this form.",
       );
       return;
     }
-    const formData = new FormData(event.currentTarget);
     const subject = encodeURIComponent(
-      `Website inquiry: ${formData.get("interest")}`,
+      `${isAppointment ? "Appointment request" : "Website inquiry"}: ${formData.get("interest")}`,
     );
     const body = encodeURIComponent(
-      `Name: ${formData.get("name")}\nEmail: ${formData.get("email")}\nPhone: ${formData.get("phone") || "Not provided"}\nLocation: ${formData.get("location")}\nInterested in: ${formData.get("interest")}\n\nPlease contact me to discuss next steps.\n\nI have not included sensitive health information.`,
+      `Name: ${formData.get("name")}\nEmail: ${formData.get("email")}\nPhone: ${formData.get("phone") || "Not provided"}\nLocation: ${formData.get("location")}\nInterested in: ${formData.get("interest")}\nPreferred day: ${formData.get("preferred-date") || "Not provided"}\nPreferred time: ${formData.get("preferred-time") || "Not provided"}\n\nPlease contact me to discuss next steps. This is a request, not a confirmed appointment.\n\nI have not included sensitive health information.`,
     );
     window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
-    setStatus("Your email app should open with a draft for the care team.");
+    setStatus(
+      isAppointment
+        ? "Your email app should open with an appointment request draft. Your appointment is not confirmed until the care team replies."
+        : "Your email app should open with a draft. Review and send it to contact the care team.",
+    );
   }
 
   return (
@@ -802,8 +824,25 @@ function ContactPage() {
         </div>
         <form className="contact-form" onSubmit={handleSubmit}>
           <div className="form-heading">
-            <h2>Send a short note</h2>
-            <p>Required fields are marked with an asterisk.</p>
+            <h2>
+              {isAppointment ? "Request an appointment" : "Send a short note"}
+            </h2>
+            <p>
+              {isAppointment
+                ? "Share a preferred day and time. The team will confirm availability."
+                : "Required fields are marked with an asterisk."}
+            </p>
+          </div>
+          <div className="honeypot-field" aria-hidden="true">
+            <label>
+              Leave this field empty
+              <input
+                name="website"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </label>
           </div>
           <label>
             Your name <span>*</span>
@@ -846,9 +885,27 @@ function ContactPage() {
               <option>Senior care</option>
               <option>Individual support</option>
               <option>Caregiver opportunities</option>
+              <option>Care consultation / appointment</option>
               <option>Something else</option>
             </select>
           </label>
+          {isAppointment && (
+            <div className="appointment-preferences">
+              <label>
+                Preferred day <small>Optional</small>
+                <input type="date" name="preferred-date" min={minimumDate} />
+              </label>
+              <label>
+                Preferred time <small>Optional</small>
+                <select name="preferred-time" defaultValue="">
+                  <option value="">No preference</option>
+                  <option>Morning</option>
+                  <option>Afternoon</option>
+                  <option>Early evening</option>
+                </select>
+              </label>
+            </div>
+          )}
           <p className="form-privacy">
             {contactEmail
               ? "Your email app will open with a brief message to the care team. Please do not include diagnoses, medications, or other sensitive health information."
@@ -948,6 +1005,11 @@ function CookiePage() {
             "Save preference"
           )}
         </button>
+        {saved && (
+          <p className="form-status" role="status">
+            Your preference has been saved on this browser.
+          </p>
+        )}
       </section>
     </main>
   );
@@ -965,11 +1027,38 @@ function ContactBanner() {
             <em>place to begin.</em>
           </h2>
         </div>
-        <Link className="button button-paper" to="/contact">
-          Talk with our team <ArrowUpRight size={17} />
+        <Link className="button button-paper" to="/contact?topic=appointment">
+          Book appointment <CalendarDays size={17} />
         </Link>
       </div>
     </section>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <main id="main" className="not-found-page">
+      <section className="not-found-content wrap">
+        <SectionLabel>Page not found</SectionLabel>
+        <h1>
+          This page isn’t
+          <br />
+          <em>where it should be.</em>
+        </h1>
+        <p>
+          The address may have changed. Start again with care options or get in
+          touch with the team.
+        </p>
+        <div className="hero-actions">
+          <Link className="button button-dark" to="/">
+            Go to home <ArrowRight size={17} />
+          </Link>
+          <Link className="text-action" to="/services">
+            Explore care options <ArrowUpRight size={17} />
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }
 
@@ -1212,22 +1301,7 @@ function App() {
           }
         />
         <Route path="/cookies" element={<CookiePage />} />
-        <Route
-          path="*"
-          element={
-            <PageIntro
-              label="Page not found"
-              title={
-                <>
-                  Let’s get you
-                  <br />
-                  <em>back on track.</em>
-                </>
-              }
-              lead="That page may have moved. Start with our care options or get in touch with the team."
-            />
-          }
-        />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <SiteFooter />
     </>
