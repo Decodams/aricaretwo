@@ -1,0 +1,1237 @@
+import { useEffect, useState } from "react";
+import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+import {
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronDown,
+  HeartHandshake,
+  Menu,
+  MoveUpRight,
+  Phone,
+  ShieldCheck,
+  X,
+} from "lucide-react";
+const childImage =
+  "https://images.unsplash.com/photo-1761208663763-c4d30657c910?auto=format&fit=crop&w=1400&q=85";
+const olderAdultImage =
+  "https://images.unsplash.com/photo-1773227060032-1bfb40b2b376?auto=format&fit=crop&w=1400&q=85";
+
+const serviceItems = [
+  {
+    number: "01",
+    id: "children",
+    title: "Children & families",
+    short:
+      "A steady, caring place for children to learn, play, and find their rhythm.",
+    detail:
+      "Daycare and individualized support for children, shaped around each family’s routines and priorities.",
+    image: childImage,
+    alt: "Children playing with toys in a classroom",
+    tone: "butter",
+  },
+  {
+    number: "02",
+    id: "adults",
+    title: "Adult care",
+    short:
+      "Practical support for daily routines, independence, and getting out in the community.",
+    detail:
+      "Day-to-day support for adults, with attention to their routines, choices, and community life.",
+    image: olderAdultImage,
+    alt: "An older man talking with an older woman in a community room",
+    tone: "rose",
+  },
+  {
+    number: "03",
+    id: "seniors",
+    title: "Senior care",
+    short: "Considerate help for older adults and the families alongside them.",
+    detail:
+      "Support for older adults and families exploring what kind of help may make daily life easier.",
+    image: olderAdultImage,
+    alt: "An older man talking with an older woman in a community room",
+    tone: "sage",
+  },
+  {
+    number: "04",
+    id: "individual-support",
+    title: "Individual support",
+    short:
+      "One-to-one support that makes space for each person’s goals and choices.",
+    detail:
+      "For people with developmental disabilities and diverse support needs, with a focus on daily living and participation.",
+    image: childImage,
+    alt: "Children playing with toys in a classroom",
+    tone: "butter",
+  },
+];
+
+const primaryNavigation = [
+  ["Services", "/services"],
+  ["How it works", "/how-it-works"],
+  ["Our approach", "/about"],
+  ["Careers", "/careers"],
+];
+
+function SiteHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => setMenuOpen(false), [location.pathname]);
+
+  return (
+    <>
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+      <div className="announcement">
+        <span>Care for children, adults, and older adults in Arizona.</span>
+        <Link to="/how-it-works">
+          What to expect <ArrowRight size={14} />
+        </Link>
+      </div>
+      <header className="site-header">
+        <div className="header-inner wrap">
+          <Link
+            className="wordmark"
+            to="/"
+            aria-label="Arizona Health and Daycare home"
+          >
+            <span className="wordmark-mark">
+              <HeartHandshake size={23} strokeWidth={1.7} />
+            </span>
+            <span className="wordmark-type">
+              <strong>Arizona Health</strong>
+              <small>& Daycare</small>
+            </span>
+          </Link>
+          <button
+            className="menu-button icon-button"
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            {menuOpen ? <X size={21} /> : <Menu size={21} />}
+          </button>
+          <nav
+            className={`primary-navigation${menuOpen ? " is-open" : ""}`}
+            id="primary-navigation"
+            aria-label="Main navigation"
+          >
+            {primaryNavigation.map(([label, path]) => (
+              <NavLink
+                key={path}
+                to={path}
+                className={({ isActive }) =>
+                  isActive ? "nav-link active" : "nav-link"
+                }
+              >
+                {label}
+              </NavLink>
+            ))}
+            <Link className="header-cta" to="/find-care">
+              Find care <ArrowUpRight size={16} />
+            </Link>
+          </nav>
+        </div>
+      </header>
+    </>
+  );
+}
+
+function SectionLabel({ children, number }) {
+  return (
+    <div className="section-label">
+      <span className="label-rule" />
+      {number && <span>{number}</span>}
+      {children}
+    </div>
+  );
+}
+
+function ArrowLink({ to, children, light = false }) {
+  return (
+    <Link className={`arrow-link${light ? " arrow-link-light" : ""}`} to={to}>
+      {children}
+      <ArrowUpRight size={17} />
+    </Link>
+  );
+}
+
+function HomePage() {
+  return (
+    <>
+      <main id="main">
+        <section className="hero wrap">
+          <div className="hero-copy">
+            <SectionLabel>Arizona care for real life</SectionLabel>
+            <h1>
+              Help for the day
+              <br />
+              <em>you’re having.</em>
+            </h1>
+            <p className="hero-deck">
+              A school pickup. A long afternoon. A parent who could use a hand.
+              Tell us what has been going on, and we’ll talk through what
+              support may be available in your Arizona community.
+            </p>
+            <div className="hero-actions">
+              <Link className="button button-dark" to="/contact">
+                Talk with our team <ArrowRight size={17} />
+              </Link>
+              <Link className="text-action" to="/services">
+                See care options <ArrowDownRight size={17} />
+              </Link>
+            </div>
+            <div className="hero-note">
+              <span className="note-dot" />
+              You can start with a question. No plan needed.
+            </div>
+          </div>
+          <div className="hero-art">
+            <div className="hero-image-frame">
+              <img
+                src={childImage}
+                alt="Children playing with toys in a classroom"
+              />
+            </div>
+            <div className="hero-caption">
+              <span>SUPPORT THAT STARTS WITH LISTENING</span>
+              <span>
+                Arizona <ArrowUpRight size={14} />
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="pathway-band" aria-label="Care pathways">
+          <div className="wrap pathway-inner">
+            <p>Where would you like to begin?</p>
+            <div className="pathway-links">
+              <a href="#children">
+                Child & family care <ArrowDownRight size={16} />
+              </a>
+              <a href="#adults">
+                Adult care <ArrowDownRight size={16} />
+              </a>
+              <a href="#seniors">
+                Senior care <ArrowDownRight size={16} />
+              </a>
+              <Link to="/find-care">
+                Find care <ArrowUpRight size={16} />
+              </Link>
+              <Link to="/careers">
+                Become a caregiver <ArrowUpRight size={16} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="services-section wrap" id="services">
+          <div className="section-heading">
+            <div>
+              <SectionLabel number="01">Ways we can help</SectionLabel>
+              <h2>
+                What would help
+                <br />
+                <em>right now?</em>
+              </h2>
+            </div>
+            <div className="section-intro">
+              <p>
+                Start with the person and the parts of the day that feel hard.
+                We’ll explain which services may fit and what needs to be
+                confirmed.
+              </p>
+              <ArrowLink to="/services">See all services</ArrowLink>
+            </div>
+          </div>
+          <div className="service-list">
+            {serviceItems.map((service) => (
+              <article
+                className={`service-row ${service.tone}`}
+                id={service.id}
+                key={service.id}
+              >
+                <div className="service-row-index">
+                  {service.number}
+                  <span />
+                </div>
+                <div className="service-row-copy">
+                  <h3>{service.title}</h3>
+                  <p>{service.short}</p>
+                  <ArrowLink to={`/services#${service.id}`}>
+                    Explore this kind of care
+                  </ArrowLink>
+                </div>
+                <div className="service-row-image">
+                  <img src={service.image} alt={service.alt} loading="lazy" />
+                </div>
+                <ArrowLink to={`/services#${service.id}`}>
+                  <span className="sr-only">Explore {service.title}</span>
+                </ArrowLink>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="approach-section">
+          <div className="wrap approach-grid">
+            <div className="approach-image">
+              <img
+                src={olderAdultImage}
+                alt="An older man talking with an older woman in a community room"
+                loading="lazy"
+              />
+              <span className="image-note">The small moments matter.</span>
+            </div>
+            <div className="approach-copy">
+              <SectionLabel number="02">A thoughtful first step</SectionLabel>
+              <h2>
+                You don’t need
+                <br />
+                <em>a plan before you call.</em>
+              </h2>
+              <p>
+                Tell us what a usual day looks like and where another pair of
+                hands might help. We’ll listen, answer what we can, and be clear
+                about what still needs checking.
+              </p>
+              <div className="approach-points">
+                <div>
+                  <span>01</span>
+                  <p>
+                    <strong>Start wherever you are</strong>
+                    <br />
+                    Tell us what has been happening. You do not need the right
+                    words for it.
+                  </p>
+                </div>
+                <div>
+                  <span>02</span>
+                  <p>
+                    <strong>Clear answers about options</strong>
+                    <br />
+                    We’ll discuss services, availability, and anything that
+                    still needs to be confirmed.
+                  </p>
+                </div>
+                <div>
+                  <span>03</span>
+                  <p>
+                    <strong>Decide at your own pace</strong>
+                    <br />
+                    Take the time you need before deciding what comes next.
+                  </p>
+                </div>
+              </div>
+              <ArrowLink to="/how-it-works">
+                How getting started works
+              </ArrowLink>
+            </div>
+          </div>
+        </section>
+
+        <section className="standards-section wrap">
+          <div className="standards-heading">
+            <SectionLabel number="03">Straight answers matter</SectionLabel>
+            <h2>
+              Ask us the
+              <br />
+              <em>specifics.</em>
+            </h2>
+          </div>
+          <div className="standards-body">
+            <ShieldCheck size={30} strokeWidth={1.5} />
+            <p>
+              Every family should be able to ask about qualifications,
+              screening, supervision, availability, and what happens when plans
+              change. We’ll give you the details we can confirm.
+            </p>
+            <ArrowLink to="/safety">Read our safety questions</ArrowLink>
+          </div>
+        </section>
+
+        <ContactBanner />
+      </main>
+    </>
+  );
+}
+
+function PageIntro({ label, title, lead }) {
+  return (
+    <section className="page-intro wrap">
+      <SectionLabel>{label}</SectionLabel>
+      <h1>{title}</h1>
+      <p>{lead}</p>
+    </section>
+  );
+}
+
+function ServicesPage() {
+  return (
+    <main id="main">
+      <PageIntro
+        label="Our services"
+        title={
+          <>
+            Support for real life,
+            <br />
+            <em>at every age.</em>
+          </>
+        }
+        lead="We support children, adults, older adults, and the people who care about them. The right service depends on the person, the setting, and what is available where you live."
+      />
+      <div className="detail-services wrap">
+        {serviceItems.map((service, index) => (
+          <article
+            className={`detail-service ${index % 2 ? "reverse" : ""}`}
+            id={service.id}
+            key={service.id}
+          >
+            <div className="detail-service-photo">
+              <img src={service.image} alt={service.alt} loading="lazy" />
+            </div>
+            <div className="detail-service-copy">
+              <SectionLabel number={service.number}>Care pathway</SectionLabel>
+              <h2>{service.title}</h2>
+              <p>{service.detail}</p>
+              <p>
+                We’ll learn what kind of support you’re looking for, answer
+                questions, and explain what can be discussed next. Specific
+                services and eligibility depend on your circumstances and
+                location.
+              </p>
+              <ArrowLink to="/contact">Ask about this service</ArrowLink>
+            </div>
+          </article>
+        ))}
+        <div className="service-note">
+          <strong>Looking for something specific?</strong>
+          <p>
+            Families may ask about respite, help with daily activities,
+            transportation, or community participation. Tell us what would help
+            and we’ll explain whether it is something the team can discuss.
+          </p>
+          <ArrowLink to="/contact">Start a conversation</ArrowLink>
+        </div>
+      </div>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function StepsPage() {
+  const steps = [
+    [
+      "01",
+      "Tell us a little about the situation",
+      "Share the kind of support you are looking for and the Arizona community where care may be needed. Please leave out private medical details in your first message.",
+    ],
+    [
+      "02",
+      "Talk through the possibilities",
+      "A member of the team can learn more, answer your questions, and explain which services, requirements, and availability need to be confirmed.",
+    ],
+    [
+      "03",
+      "Decide on a next step together",
+      "If there may be a fit, the team can explain what information is needed, what the process involves, and what happens next. You can take the time you need to decide.",
+    ],
+  ];
+  return (
+    <main id="main">
+      <PageIntro
+        label="How it works"
+        title={
+          <>
+            A conversation first.
+            <br />
+            <em>No pressure.</em>
+          </>
+        }
+        lead="You can start with a question. We’ll help make the next step clearer, without asking you to arrive with all the answers."
+      />
+      <section className="steps-list wrap">
+        {steps.map(([number, title, text]) => (
+          <article className="step-row" key={number}>
+            <span>{number}</span>
+            <h2>{title}</h2>
+            <p>{text}</p>
+          </article>
+        ))}
+      </section>
+      <section className="plain-note wrap">
+        <p>
+          Care needs can be personal. For your privacy, do not send diagnoses,
+          medication lists, or other sensitive health information through a
+          general inquiry.
+        </p>
+        <ArrowLink to="/contact">Contact the care team</ArrowLink>
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function AboutPage() {
+  return (
+    <main id="main">
+      <PageIntro
+        label="Our approach"
+        title={
+          <>
+            People are not
+            <br />
+            <em>checklists.</em>
+          </>
+        }
+        lead="The best place to begin is with the person: what matters to them, what a good day looks like, and what kind of support feels respectful."
+      />
+      <section className="about-story wrap">
+        <div className="about-story-image">
+          <img
+            src={childImage}
+            alt="Children playing with toys in a classroom"
+            loading="lazy"
+          />
+        </div>
+        <div>
+          <SectionLabel>A more human starting point</SectionLabel>
+          <h2>Care that makes room for the whole person.</h2>
+          <p>
+            Arizona Health & Daycare brings together care for children and
+            support for adults and older adults. Every family arrives with a
+            different story. Our first job is to listen and understand what kind
+            of help is being sought.
+          </p>
+          <p>
+            We want families to feel comfortable asking practical questions
+            about services, staff, availability, and expectations. If we do not
+            offer the right fit, that should be part of the conversation too.
+          </p>
+          <ArrowLink to="/contact">Meet us in conversation</ArrowLink>
+        </div>
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function CareersPage() {
+  return (
+    <main id="main">
+      <PageIntro
+        label="Careers"
+        title={
+          <>
+            Care is work
+            <br />
+            <em>that matters.</em>
+          </>
+        }
+        lead="The everyday moments are the work: showing up, paying attention, and helping someone move through their day with more confidence."
+      />
+      <section className="career-section wrap">
+        <div className="career-quote">
+          <span>FOR PEOPLE WHO CARE</span>
+          <HeartHandshake size={38} strokeWidth={1.4} />
+          <p>
+            Good care asks for patience, consistency, and respect for the person
+            in front of you.
+          </p>
+        </div>
+        <div className="career-copy">
+          <h2>Interested in joining the team?</h2>
+          <p>
+            Reach out to ask about current opportunities and the experience or
+            qualifications needed for a specific role. Role requirements and
+            availability can change, so the team can give you the most accurate
+            details.
+          </p>
+          <p>
+            Do not send Social Security numbers, identity documents, or other
+            sensitive information in an initial inquiry.
+          </p>
+          <ArrowLink to="/contact?topic=careers">
+            Ask about care roles
+          </ArrowLink>
+        </div>
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function FindCarePage() {
+  return (
+    <main id="main">
+      <PageIntro
+        label="Find care"
+        title={
+          <>
+            A better fit begins
+            <br />
+            <em>with a conversation.</em>
+          </>
+        }
+        lead="Tell us what kind of support you’re looking for and where care may be needed. The team can talk through services, availability, and the next questions to consider."
+      />
+      <section className="find-care-content wrap">
+        <div className="find-care-intro">
+          <SectionLabel>For individuals & families</SectionLabel>
+          <h2>
+            Start with the person,
+            <br />
+            <em>not a profile list.</em>
+          </h2>
+          <p>
+            We do not publish caregiver profiles or promise a match before
+            learning about the situation. A conversation helps establish what
+            support may be appropriate and what details need to be confirmed.
+          </p>
+          <ArrowLink to="/contact">Request a conversation</ArrowLink>
+        </div>
+        <div className="find-care-steps">
+          <article>
+            <span>01</span>
+            <div>
+              <h3>Share the basics</h3>
+              <p>
+                Tell us the type of care and the Arizona city or ZIP code. Leave
+                out private health information.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <h3>Talk through fit</h3>
+              <p>
+                Ask about services, availability, qualifications, screening, and
+                how support is arranged.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <h3>Choose what comes next</h3>
+              <p>
+                Take time to review the details before deciding whether to
+                proceed.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function SafetyPage() {
+  const questions = [
+    "What qualifications or training does this role require?",
+    "What screening steps are completed, and when?",
+    "Who supervises the care and handles concerns?",
+    "How are schedules, changes, and emergencies communicated?",
+    "What services are included, and what falls outside their scope?",
+  ];
+  return (
+    <main id="main">
+      <PageIntro
+        label="Safety & quality"
+        title={
+          <>
+            Clear answers are
+            <br />
+            <em>part of good care.</em>
+          </>
+        }
+        lead="Every care arrangement is different. Ask specific questions and make sure you understand how a provider’s policies work before services begin."
+      />
+      <section className="safety-content wrap">
+        <div className="safety-callout">
+          <ShieldCheck size={34} strokeWidth={1.4} />
+          <h2>Ask what happens in practice.</h2>
+          <p>
+            Policies, credentials, and screening requirements depend on the role
+            and service. Confirm the details directly with the care team rather
+            than relying on a general statement.
+          </p>
+        </div>
+        <div className="question-list">
+          {questions.map((question, index) => (
+            <div key={question}>
+              <span>0{index + 1}</span>
+              <p>{question}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+      <section className="plain-note wrap">
+        <p>
+          Do not use this website for emergencies. Call 911 in the United States
+          if someone is in immediate danger.
+        </p>
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+const faqs = [
+  [
+    "What kinds of care can I ask about?",
+    "You can ask about care for children, individual support, and help for adults or older adults. Tell us what you are looking for and we can explain what may be available.",
+  ],
+  [
+    "Do I need to know which service I need before contacting you?",
+    "No. A first conversation can help you describe the situation and understand which questions to ask next.",
+  ],
+  [
+    "Are services available everywhere in Arizona?",
+    "Availability can vary by location and service. Share your city or ZIP code so the team can confirm whether your area is served.",
+  ],
+  [
+    "How much does care cost?",
+    "Rates, coverage, and payment options depend on the service and individual circumstances. Ask the team for current details before making a decision.",
+  ],
+  [
+    "Are staff background checks and credentials verified?",
+    "Please ask the team which screening and qualification steps apply to a particular service and role. We do not make blanket verification claims on this website.",
+  ],
+  [
+    "Can I send health details through the contact form?",
+    "Please do not include diagnoses, medications, or sensitive health information in a general inquiry. The team can explain an appropriate way to discuss private details.",
+  ],
+];
+
+function FAQPage() {
+  return (
+    <main id="main">
+      <PageIntro
+        label="Frequently asked questions"
+        title={
+          <>
+            Good questions
+            <br />
+            <em>deserve plain answers.</em>
+          </>
+        }
+        lead="Here are a few helpful starting points. Details may depend on the service and your location, so we encourage you to ask about your situation."
+      />
+      <section className="faq-list wrap">
+        {faqs.map(([question, answer]) => (
+          <details key={question}>
+            <summary>
+              {question}
+              <ChevronDown size={19} />
+            </summary>
+            <p>{answer}</p>
+          </details>
+        ))}
+      </section>
+      <ContactBanner />
+    </main>
+  );
+}
+
+function ContactPage() {
+  const params = new URLSearchParams(window.location.search);
+  const [status, setStatus] = useState("");
+  const contactEmail = import.meta.env.VITE_CONTACT_EMAIL;
+  const [topic, setTopic] = useState(
+    params.get("topic") === "careers" ? "Caregiver opportunities" : "",
+  );
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    if (!contactEmail) {
+      setStatus(
+        "The care team’s official email address has not been added yet. Please confirm it before publishing this form.",
+      );
+      return;
+    }
+    const formData = new FormData(event.currentTarget);
+    const subject = encodeURIComponent(
+      `Website inquiry: ${formData.get("interest")}`,
+    );
+    const body = encodeURIComponent(
+      `Name: ${formData.get("name")}\nEmail: ${formData.get("email")}\nPhone: ${formData.get("phone") || "Not provided"}\nLocation: ${formData.get("location")}\nInterested in: ${formData.get("interest")}\n\nPlease contact me to discuss next steps.\n\nI have not included sensitive health information.`,
+    );
+    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
+    setStatus("Your email app should open with a draft for the care team.");
+  }
+
+  return (
+    <main id="main">
+      <PageIntro
+        label="Contact"
+        title={
+          <>
+            Let’s talk about
+            <br />
+            <em>what would help.</em>
+          </>
+        }
+        lead="A first conversation can be simple. Share how to reach you and what kind of support you’re asking about. Please keep private health details out of this form."
+      />
+      <section className="contact-layout wrap">
+        <div className="contact-aside">
+          <span className="contact-aside-mark">
+            <Phone size={23} />
+          </span>
+          <h2>Start with a short note.</h2>
+          <p>
+            Share how to reach you and what kind of support you’re asking about.
+            Please leave private health details out.
+          </p>
+          {contactEmail && (
+            <a className="email-link" href={`mailto:${contactEmail}`}>
+              Email the care team <MoveUpRight size={15} />
+            </a>
+          )}
+          <p className="small-print">
+            Call 911 in the United States if someone is in immediate danger.
+          </p>
+        </div>
+        <form className="contact-form" onSubmit={handleSubmit}>
+          <div className="form-heading">
+            <h2>Send a short note</h2>
+            <p>Required fields are marked with an asterisk.</p>
+          </div>
+          <label>
+            Your name <span>*</span>
+            <input name="name" autoComplete="name" required maxLength="100" />
+          </label>
+          <label>
+            Email address <span>*</span>
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              required
+              maxLength="254"
+            />
+          </label>
+          <label>
+            Phone number <small>Optional</small>
+            <input type="tel" name="phone" autoComplete="tel" maxLength="30" />
+          </label>
+          <label>
+            City or ZIP code <span>*</span>
+            <input
+              name="location"
+              required
+              maxLength="80"
+              autoComplete="postal-code"
+            />
+          </label>
+          <label>
+            What are you asking about? <span>*</span>
+            <select
+              name="interest"
+              value={topic}
+              onChange={(event) => setTopic(event.target.value)}
+              required
+            >
+              <option value="">Choose one</option>
+              <option>Child and family care</option>
+              <option>Adult care</option>
+              <option>Senior care</option>
+              <option>Individual support</option>
+              <option>Caregiver opportunities</option>
+              <option>Something else</option>
+            </select>
+          </label>
+          <p className="form-privacy">
+            {contactEmail
+              ? "Your email app will open with a brief message to the care team. Please do not include diagnoses, medications, or other sensitive health information."
+              : "This form is not ready to send. The business must configure its official contact email first. Please do not include diagnoses, medications, or other sensitive health information."}
+          </p>
+          <button
+            className="button button-dark"
+            type="submit"
+            disabled={!contactEmail}
+          >
+            Continue in email <ArrowRight size={17} />
+          </button>
+          {status && (
+            <p className="form-status" role="status">
+              {status}
+            </p>
+          )}
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function PolicyPage({ title, intro, sections }) {
+  return (
+    <main id="main">
+      <PageIntro label="Information" title={title} lead={intro} />
+      <section className="policy-content wrap">
+        {sections.map(([heading, copy]) => (
+          <article key={heading}>
+            <h2>{heading}</h2>
+            <p>{copy}</p>
+          </article>
+        ))}
+      </section>
+      <p className="policy-disclaimer wrap">
+        This page is general website information, not legal advice. The business
+        should have its policies reviewed for the locations and services it
+        operates.
+      </p>
+    </main>
+  );
+}
+
+function CookiePage() {
+  const [analyticsAllowed, setAnalyticsAllowed] = useState(
+    () => localStorage.getItem("analytics-preference") === "allowed",
+  );
+  const [saved, setSaved] = useState(false);
+  return (
+    <main id="main">
+      <PageIntro
+        label="Your choices"
+        title={
+          <>
+            A little control
+            <br />
+            <em>goes a long way.</em>
+          </>
+        }
+        lead="This site does not currently load analytics or advertising cookies. You can save your preference here; it will stay on this browser."
+      />
+      <section className="cookie-controls wrap">
+        <div>
+          <h2>Optional analytics</h2>
+          <p>
+            No analytics tool is currently connected. This setting records your
+            choice locally and does not enable tracking by itself.
+          </p>
+        </div>
+        <label className="switch-label">
+          <input
+            type="checkbox"
+            checked={analyticsAllowed}
+            onChange={(event) => {
+              setAnalyticsAllowed(event.target.checked);
+              setSaved(false);
+            }}
+          />
+          <span>{analyticsAllowed ? "Allowed" : "Not allowed"}</span>
+        </label>
+        <button
+          className="button button-dark"
+          onClick={() => {
+            localStorage.setItem(
+              "analytics-preference",
+              analyticsAllowed ? "allowed" : "not-allowed",
+            );
+            setSaved(true);
+          }}
+        >
+          {saved ? (
+            <>
+              <Check size={17} /> Preference saved
+            </>
+          ) : (
+            "Save preference"
+          )}
+        </button>
+      </section>
+    </main>
+  );
+}
+
+function ContactBanner() {
+  return (
+    <section className="contact-banner">
+      <div className="wrap banner-inner">
+        <div>
+          <SectionLabel>One conversation can help</SectionLabel>
+          <h2>
+            Let’s find a good
+            <br />
+            <em>place to begin.</em>
+          </h2>
+        </div>
+        <Link className="button button-paper" to="/contact">
+          Talk with our team <ArrowUpRight size={17} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="wrap footer-main">
+        <div className="footer-about">
+          <Link className="wordmark footer-wordmark" to="/">
+            <span className="wordmark-mark">
+              <HeartHandshake size={23} strokeWidth={1.7} />
+            </span>
+            <span className="wordmark-type">
+              <strong>Arizona Health</strong>
+              <small>& Daycare</small>
+            </span>
+          </Link>
+          <p>Thoughtful care and practical support for Arizona families.</p>
+          <Link to="/contact">
+            Contact the care team <ArrowUpRight size={14} />
+          </Link>
+        </div>
+        <div className="footer-column">
+          <h2>Explore</h2>
+          <Link to="/services">Services</Link>
+          <Link to="/how-it-works">How it works</Link>
+          <Link to="/about">Our approach</Link>
+          <Link to="/safety">Safety & quality</Link>
+        </div>
+        <div className="footer-column">
+          <h2>For families & caregivers</h2>
+          <Link to="/find-care">Find care</Link>
+          <Link to="/faqs">Frequently asked questions</Link>
+          <Link to="/careers">Careers</Link>
+          <Link to="/contact">Contact</Link>
+        </div>
+        <div className="footer-column">
+          <h2>Information</h2>
+          <Link to="/privacy">Privacy notice</Link>
+          <Link to="/terms">Terms of use</Link>
+          <Link to="/cancellation">Cancellation policy</Link>
+          <Link to="/cookies">Cookie preferences</Link>
+        </div>
+      </div>
+      <div className="wrap footer-bottom">
+        <p>© {new Date().getFullYear()} Arizona Health & Daycare</p>
+        <p>Serving Arizona · United States</p>
+        <Link to="/contact">
+          Questions? Start here <ArrowUpRight size={14} />
+        </Link>
+      </div>
+    </footer>
+  );
+}
+
+function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const metadata = {
+      "/": [
+        "Care for real life",
+        "Thoughtful care and practical support for children, adults, and older adults in Arizona.",
+      ],
+      "/services": [
+        "Care services in Arizona",
+        "Explore care and support for children, adults, older adults, and people with individual support needs in Arizona.",
+      ],
+      "/how-it-works": [
+        "How getting started works",
+        "Learn what to expect when you contact Arizona Health & Daycare about care and support.",
+      ],
+      "/about": [
+        "Our approach to care",
+        "Learn about Arizona Health & Daycare’s person-centered approach to care and family support.",
+      ],
+      "/careers": [
+        "Careers in care",
+        "Ask about care roles, current opportunities, and role qualifications in Arizona.",
+      ],
+      "/find-care": [
+        "Find care in Arizona",
+        "Start a conversation about care needs, service availability, and possible next steps in Arizona.",
+      ],
+      "/contact": [
+        "Contact the care team",
+        "Contact Arizona Health & Daycare to ask about services and care availability.",
+      ],
+      "/safety": [
+        "Safety and quality questions",
+        "Questions to ask about qualifications, screening, supervision, and care arrangements.",
+      ],
+      "/faqs": [
+        "Frequently asked questions",
+        "Answers to common questions about care services, availability, cost, and privacy.",
+      ],
+      "/privacy": [
+        "Privacy notice",
+        "How this website handles general inquiries and privacy preferences.",
+      ],
+      "/terms": [
+        "Terms of use",
+        "General terms for using the Arizona Health & Daycare website.",
+      ],
+      "/cancellation": [
+        "Cancellation policy",
+        "Information about confirming cancellation, rescheduling, and refund terms before arranging care.",
+      ],
+      "/cookies": [
+        "Cookie preferences",
+        "Manage your local preference for optional analytics on this website.",
+      ],
+    };
+    const [pageTitle, description] = metadata[location.pathname] ?? [
+      "Page not found",
+      "The requested page could not be found.",
+    ];
+    document.title = `${pageTitle} | Arizona Health & Daycare`;
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute("content", description);
+
+    if (location.hash) {
+      requestAnimationFrame(() =>
+        document
+          .getElementById(decodeURIComponent(location.hash.slice(1)))
+          ?.scrollIntoView(),
+      );
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname, location.hash]);
+
+  return (
+    <>
+      <SiteHeader />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/how-it-works" element={<StepsPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/find-care" element={<FindCarePage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/safety" element={<SafetyPage />} />
+        <Route path="/faqs" element={<FAQPage />} />
+        <Route
+          path="/privacy"
+          element={
+            <PolicyPage
+              title={
+                <>
+                  Privacy starts
+                  <br />
+                  <em>with less data.</em>
+                </>
+              }
+              intro="This website should only ask for the information needed to respond to a general inquiry. Do not send sensitive health details through the public contact form."
+              sections={[
+                [
+                  "Information you choose to share",
+                  "The contact form asks for your name, email address, an optional phone number, and the kind of service you want to discuss. When you continue, your email application prepares a message for you to send. This website does not currently submit inquiry data to a server.",
+                ],
+                [
+                  "Sensitive information",
+                  "Please do not submit diagnoses, medications, financial information, government identification numbers, or other sensitive personal information in a general inquiry.",
+                ],
+                [
+                  "Cookies and analytics",
+                  "No analytics or advertising cookies are currently connected. Cookie preferences saved on this browser are stored locally.",
+                ],
+                [
+                  "Before launch",
+                  "The business should confirm its actual data practices, retention periods, vendors, contact information, and applicable privacy obligations before publishing this notice.",
+                ],
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <PolicyPage
+              title={
+                <>
+                  Clear terms
+                  <br />
+                  <em>matter.</em>
+                </>
+              }
+              intro="These general terms are a starting point for website use. They do not describe a care agreement or replace signed service documents."
+              sections={[
+                [
+                  "Website information",
+                  "Service descriptions are general information and do not guarantee eligibility, availability, a particular outcome, or a specific service. Confirm details directly with the business.",
+                ],
+                [
+                  "No emergency or medical service",
+                  "Do not use this site for emergency assistance or medical advice. Call 911 in the United States in an emergency.",
+                ],
+                [
+                  "Service agreements",
+                  "Any care arrangement, fees, responsibilities, cancellation terms, and service boundaries should be set out in the current agreement provided by the business.",
+                ],
+                [
+                  "Before launch",
+                  "Have an attorney review and replace this general information with terms appropriate to the business and the places where it operates.",
+                ],
+              ]}
+            />
+          }
+        />
+        <Route
+          path="/cancellation"
+          element={
+            <PolicyPage
+              title={
+                <>
+                  Plans can change.
+                  <br />
+                  <em>Know the details.</em>
+                </>
+              }
+              intro="Cancellation, rescheduling, and refund terms depend on the service agreement. Please confirm the current policy with the business before services are arranged."
+              sections={[
+                [
+                  "Ask before scheduling",
+                  "Confirm notice periods, fees, missed visits, holiday arrangements, and how to request a change.",
+                ],
+                [
+                  "Written agreement",
+                  "The written service agreement should explain which payments may be refunded and when.",
+                ],
+                [
+                  "Current policy",
+                  "No specific cancellation or refund terms were provided for this website. The business should add its approved policy here before launch.",
+                ],
+              ]}
+            />
+          }
+        />
+        <Route path="/cookies" element={<CookiePage />} />
+        <Route
+          path="*"
+          element={
+            <PageIntro
+              label="Page not found"
+              title={
+                <>
+                  Let’s get you
+                  <br />
+                  <em>back on track.</em>
+                </>
+              }
+              lead="That page may have moved. Start with our care options or get in touch with the team."
+            />
+          }
+        />
+      </Routes>
+      <SiteFooter />
+    </>
+  );
+}
+
+export default App;
