@@ -15,8 +15,7 @@ import {
   X,
 } from "lucide-react";
 const childImage = "/images/dtt-circle-time.jpg";
-const olderAdultImage =
-  "https://images.unsplash.com/photo-1773227060032-1bfb40b2b376?auto=format&fit=crop&w=1400&q=85";
+const adultProgramImage = "/images/adult_care.jpg";
 const heroImage = childImage;
 const brandName = "Arizona Development Center LLC";
 
@@ -29,7 +28,7 @@ const serviceItems = [
       "A structured day in Peoria with social, practical, physical, and learning activities for adults.",
     detail:
       "Day Treatment and Training for Adults offers a structured setting with life-skills practice, chair yoga and stretching, arts and food crafts, music, trivia and puzzles, social events, and community participation. Activities support skill-building and independence.",
-    image: olderAdultImage,
+    image: adultProgramImage,
     alt: "Adults spending time together in a community room",
     tone: "butter",
   },
@@ -292,85 +291,152 @@ function HomePage() {
           </div>
         </section>
 
-        <section className="approach-section">
-          <div className="wrap approach-grid">
-            <div className="approach-image">
+        <section className="about-home-section">
+          <div className="wrap about-home-grid">
+            <div className="about-home-photo">
               <img
-                src={olderAdultImage}
-                alt="An older man talking with an older woman in a community room"
+                src={adultProgramImage}
+                alt="Adults taking part in a group arts activity"
                 loading="lazy"
               />
             </div>
-            <div className="approach-copy">
-              <SectionLabel number="02">A thoughtful first step</SectionLabel>
+            <div className="about-home-copy">
+              <SectionLabel>About Us</SectionLabel>
               <h2>
-                You don’t need
+                A day with room
                 <br />
-                <em>a plan before you call.</em>
+                <em>to learn and take part.</em>
               </h2>
               <p>
-                Tell us what a usual day looks like and where another pair of
-                hands might help. We’ll listen, answer what we can, and be clear
-                about what still needs checking.
+                Arizona Development Center LLC is a division of DTA/DTT,
+                offering adult day training and child and youth programming at
+                11001 N 99th Ave. in Peoria. Activities can include practical
+                skills, creative projects, movement, and community
+                participation.
               </p>
-              <div className="approach-points">
-                <div>
-                  <span>01</span>
-                  <p>
-                    <strong>DTA and DTT</strong>
-                    <br />
-                    Day Treatment and Training for adults, children, and youth.
-                  </p>
-                </div>
-                <div>
-                  <span>02</span>
-                  <p>
-                    <strong>Activities with purpose</strong>
-                    <br />
-                    Practice life skills, communication, learning, movement, and
-                    participation.
-                  </p>
-                </div>
-                <div>
-                  <span>03</span>
-                  <p>
-                    <strong>Ask about getting here</strong>
-                    <br />
-                    Contact the center about pickup and wheelchair van options.
-                  </p>
-                </div>
-              </div>
-              <ArrowLink to="/how-it-works">
-                How getting started works
-              </ArrowLink>
+              <p className="welcome-note">
+                Everyone is welcome to contact us. We do not discriminate.
+              </p>
+              <Link className="button button-dark" to="/about">
+                About Us <ArrowRight size={17} />
+              </Link>
             </div>
           </div>
         </section>
 
-        <section className="standards-section wrap">
-          <div className="standards-heading">
-            <SectionLabel number="03">Straight answers matter</SectionLabel>
-            <h2>
-              Ask us the
-              <br />
-              <em>specifics.</em>
-            </h2>
-          </div>
-          <div className="standards-body">
-            <ShieldCheck size={30} strokeWidth={1.5} />
-            <p>
-              Everyone is welcome to contact the center. We do not discriminate
-              or close our doors to anyone. Program fit, eligibility, support
-              needs, safety, and current availability are discussed
-              individually.
-            </p>
-            <ArrowLink to="/safety">Read our safety questions</ArrowLink>
-          </div>
-        </section>
+        <HomeTestimonials />
+        <HomeFAQs />
+        <HomeTeam />
 
         <ContactBanner />
       </main>
     </>
+  );
+}
+
+function HomeTestimonials() {
+  return (
+    <section
+      className="home-testimonials"
+      aria-labelledby="home-testimonials-title"
+    >
+      <div className="wrap home-testimonials-grid">
+        <figure className="home-testimonial-photo">
+          <img
+            src={adultProgramImage}
+            alt="Participants working together during an arts activity"
+            loading="lazy"
+          />
+          <figcaption>
+            Program photo; not a patient portrait or testimonial.
+          </figcaption>
+        </figure>
+        <div className="home-testimonials-inner">
+          <SectionLabel>What Patients Say About Us</SectionLabel>
+          <h2 id="home-testimonials-title">
+            Their words should
+            <br />
+            <em>be their own.</em>
+          </h2>
+          <p>
+            Patient and family stories will be shared here only with their
+            permission. We don’t publish invented quotes, names, photos, or
+            ratings. Contact the center with questions about DTA, DTT, and what
+            to expect.
+          </p>
+          <ArrowLink to="/contact">Talk with the center</ArrowLink>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HomeFAQs() {
+  return (
+    <section className="home-faq-section wrap" aria-labelledby="home-faq-title">
+      <div className="home-faq-heading">
+        <SectionLabel>Frequently asked questions</SectionLabel>
+        <h2 id="home-faq-title">
+          A few helpful
+          <br />
+          <em>first answers.</em>
+        </h2>
+        <ArrowLink to="/faqs">See all FAQs</ArrowLink>
+      </div>
+      <div className="home-faq-list">
+        {faqs.slice(0, 4).map(([question, answer]) => (
+          <details key={question}>
+            <summary>
+              {question}
+              <ChevronDown size={19} />
+            </summary>
+            <p>{answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function HomeTeam() {
+  return (
+    <section className="home-team-section">
+      <div className="wrap home-team-grid">
+        <figure className="home-team-photo">
+          <img
+            src={childImage}
+            alt="A representative classroom activity for children and youth"
+            loading="lazy"
+          />
+          <figcaption>
+            Representative program photo; not center staff.
+          </figcaption>
+        </figure>
+        <div className="home-team-content">
+          <div>
+            <SectionLabel>Our Team</SectionLabel>
+            <h2>
+              People supporting
+              <br />
+              <em>each program.</em>
+            </h2>
+          </div>
+          <div className="home-team-copy">
+            <ul className="program-team-list">
+              <li>Adult Day Training (DTA)</li>
+              <li>Child and Youth Training (DTT)</li>
+              <li>Transportation questions and coordination</li>
+            </ul>
+            <p>
+              Contact the center to ask who you can speak with about a
+              participant’s program, schedule, or transportation. Staff names
+              and roles should be confirmed directly by the center.
+            </p>
+            <ArrowLink to="/about">About the center</ArrowLink>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -1153,6 +1219,13 @@ function SiteFooter() {
             <br />
             Peoria, AZ 85345
           </address>
+          <div className="footer-hours">
+            <h2>Program Hours</h2>
+            <p>DTA program day: 8:00 a.m.–4:00 p.m.</p>
+            <small>
+              Contact the center to confirm operating days and holiday hours.
+            </small>
+          </div>
           <Link to="/contact">
             Contact the care team <ArrowUpRight size={14} />
           </Link>
