@@ -67,5 +67,7 @@ No Supabase configured: bookings fall back to ./data/bookings.json (dev only)
 - API flow tested end-to-end: create → 201 + reference; unauthenticated list → 401; wrong password → 401; correct password → session; list → bookings + stats; PATCH status → updated counts.
 - Booking UI tested through all four steps to confirmation.
 - Admin UI tested: login, 2 bookings listed, status change updates stats.
-- Responsive: 18 viewport/page combinations (320–1280px) with zero horizontal overflow.
-- Lighthouse 100/100/100 on `/book`.
+- Responsive: all 16 routes at 320px plus 320–1280px sweeps with zero horizontal overflow; 24px minimum tap targets (44px on touch).
+- Lighthouse 100/100/100 on `/`, `/book`, `/contact`, `/admin` and `/faqs`.
+- `/contact` now also submits to `/api/bookings` (no configuration needed); consent checkbox added.
+- See `REVIEW-REPORT.md` for the latest 8-persona walkthrough and the full defect list.

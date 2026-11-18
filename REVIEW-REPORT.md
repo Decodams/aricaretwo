@@ -1,324 +1,154 @@
-# Arizona Development Center — Full System Review
+# Arizona Development Center — Full System Review (fresh pass)
 
-> **Update:** Since this review, a full booking system (multi-step form, Supabase-backed API, password-protected admin dashboard, email layer, and build-time prerendering for SEO/AI crawlers) has been built. See `BOOKING-SYSTEM.md` and `SUPABASE_SCHEMA.md`. The launch blockers listed below still apply.
-
-**Scope:** `index.html`, `src/App.jsx` (1,605 lines), `src/styles.css` (~720 lines), `vite.config.js`, `vercel.json`, `.env.example`, image assets, and all 14 public routes.
-**Method:** static code review + live browser walkthrough + 36-viewport responsive harness (320–1280px across `/`, `/services`, `/faqs`, `/contact`) + Lighthouse audits on every key route.
-**Date:** 2026-11-18
+**Reviewed:** 2026-11-18 — the *current* system, including the new booking API, admin dashboard, email layer and prerendered SEO/AI output.
+**Method:** static review of all source + live browser walkthrough of every route; iframe harness across 320/360/375/414/600/768/900/1024/1280px; API edge-case tests; Lighthouse on every key page.
+**Companion docs:** `BOOKING-SYSTEM.md`, `SUPABASE_SCHEMA.md`, `LAUNCH-HANDOFF.md`.
 
 ---
 
-## 0. Executive summary
+## Executive summary
 
-The site is a well-crafted, honest static marketing site for two Arizona HCBS programs (DTA for adults, DTT for children/youth). Its biggest strengths are restraint (it refuses to invent unverified facts), clear writing, and a calm visual system. Its biggest weakness is **conversion**: the primary action (a consultation) has no working endpoint out of the box, no phone number is published, and almost every substantive question is answered with "contact us."
+This pass found and fixed **six real defects** that the previous review's automated checks missed:
 
-I fixed every code-level defect I found:
+| # | Defect | Fix |
+|---|--------|-----|
+| 1 | `/contact` submit was a **dead, disabled button** (no endpoint configured) | Now POSTs to the real `/api/bookings` endpoint; no secret needed. Added consent checkbox. |
+| 2 | `/contact` had **74px horizontal overflow at 320px / 43px at 1280px** — the global `input { width:100% }` stretched the consent checkbox | Scoped checkbox to `16px` |
+| 3 | Text links across the site had **21–23px tap targets** (below WCAG 2.5.8's 24px) | `min-height:24px` globally, `44px` on touch devices, including `.pathway-links a` |
+| 4 | `/contact` two **color-contrast failures** (small labels, privacy text) | Darkened to `#5f6a63` |
+| 5 | `/admin` **ARIA table violations** (role=row containing a button; unwrapped rows) | Added `role="presentation"` wrapper and `role="cell"` around the expand button |
+| 6 | Footer logo link had **no accessible name in markup** | Added `aria-label` |
 
-| # | Issue | Status |
-|---|-------|--------|
-| 1 | 15px horizontal overflow at 320px on every page | Fixed |
-| 2 | 12 WCAG color-contrast failures | Fixed (now 0) |
-| 3 | Invalid `robots.txt` (SEO) | Fixed (SEO 83 → 100) |
-| 4 | `/careers` page existed but had **no link from anywhere** | Fixed |
-| 5 | Contact form had no endpoint; submit button was a dead, disabled control | Fixed (endpoint-ready) |
-| 6 | Stale topic state when navigating between `/contact` variants | Fixed |
-| 7 | No sitemap for a 14-page site | Fixed |
-
-**Verification:** `npm run build` passes; Lighthouse scores **Accessibility 100 / Best Practices 100 / SEO 100**; 36 responsive combinations show **zero overflow**; all 14 routes render with correct titles and no console errors.
-
-**Remaining blockers are business decisions, not code:** a verified contact email or form endpoint, a phone number, real staff/photo content with permissions, and legal review of the draft policies. See `LAUNCH-HANDOFF.md`.
+**Final state:** all 16 public/admin routes at 320px have **zero overflow and zero dead controls**; Lighthouse is **100/100/100** (Accessibility / Best Practices / SEO) on `/`, `/book`, `/contact`, `/admin`, `/faqs`; all API validation, auth and honeypot edge cases pass; `npm run build` passes and prerenders 15 pages.
 
 ---
 
-## 1. Persona: The User (parent, guardian, or self-advocate)
+## 1. User — parent, guardian, self-advocate
 
-### What is fine
-- Calm, plain language. "You can start with a question. No plan needed." lowers the anxiety of a first contact.
-- Honest labeling: every photo is marked "Representative image," and the testimonial/team sections explicitly say the people shown are not ADC participants or staff. That builds trust rather than faking social proof.
-- The FAQ answers real questions in readable language, including "please don't send health details through the form."
-- Clear address, a Google Maps link, a visible schedule, and a "bring your own lunch" note.
-- The mobile menu and FAQ accordions are keyboard-accessible; there is a skip link.
+**Fine:** The new 4-step `/book` flow is calm and guided — it never asks for medical details, explains the program choice with plain hints, blocks past/weekend dates, and confirms "request, not a confirmed appointment." The confirmation screen gives a reference number. FAQs, the schedule, the lunch note, and the "start with a question" tone all reduce anxiety. Repeat CTA placement means help is always one tap away.
 
-### What is wrong
-- **There is no phone number or email anywhere on the site.** The single action available is a form. For a family in a hurry, that is a dead end.
-- **"Book Free Consultation" does not book anything.** It opens an email draft (or, before config, a disabled button).
-- The daily schedule contains an honest but alarming row: `2:30–3:30 PM — "Schedule details to confirm."`
-- Almost every substantive question — eligibility, AHCCCS/insurance, parent training, transportation, availability — ends in "ask the center." The site raises the questions but rarely answers them.
+**Wrong:** Two inquiry paths still coexist (`/contact` and `/book`) with similar wording, which can confuse. Email delivery is dormant, so a family may submit and receive no confirmation email yet (they do get an on-screen reference). No phone number is published.
 
-### What is difficult
-- Understanding DTA vs DTT (the FAQ helps, but the homepage uses the acronyms immediately).
-- Figuring out "is this right for my family?" with no comparison view and no stated availability.
-- Reaching a human quickly.
+**Difficult:** Picking DTA vs DTT without a comparison table; understanding eligibility/funding; waiting for a human reply with no stated response time.
 
-### What is missing
-- Phone number, real booking, response-time expectation ("we reply within 1 business day"), staff names, actual availability, funding/cost answers, directions/transit/parking information.
+**Missing:** Published phone/email, response-time expectation, real availability, staff names, directions/parking, downloadable referral info.
 
-### What should be done
-1. Publish a verified phone number with click-to-call.
-2. Configure a real submission endpoint or a booking link (Calendly etc.).
-3. Add a short "What happens after you contact us" section with a response-time commitment.
-4. Replace "ask the center" with real answers wherever the business approves them.
+**Should do:** Merge `/contact` into `/book` as a single entry point, publish verified contact details, add a "what happens next / typical reply time" block, and enable email.
 
----
+## 2. Critic — UX & quality skeptic
 
-## 2. Persona: The Critic (UX and quality skeptic)
+**Fine:** The site still refuses to invent credentials, testimonials, hours or outcomes — unusual integrity. The booking flow's PHI guard and "not confirmed" wording are thoughtful. Real functionality now exists behind every button.
 
-### What is fine
-- Remarkable restraint: the site does not fabricate credentials, testimonials, hours, or capabilities. Many commercial care sites do.
-- Consistent editorial design — serif headlines, generous spacing, one accent color — applied across all 14 routes.
-- Fast, dependency-light static build; no trackers by default.
+**Wrong:** The "Testimonials" section on the home page still contains no testimonial; "Meet the team" shows a children's photo labelled "not center staff." Those two sections promise proof they don't deliver. Six FAQs still end in "ask the center." Email being deliberately dormant means the system is half-connected until configured.
 
-### What is wrong
-- The "honest hedging" crosses into incompleteness. Six of the thirteen FAQs are variations of "contact us to confirm." A skeptical visitor reads that as "they don't actually know / can't say."
-- The "Testimonials" section contains **no testimonial** — it is a photo of unrelated adults and a paragraph about trust.
-- The "Meet the team" section shows a children's photo labelled "not center staff." It announces a team it never introduces.
-- Before this review, the CSS was ~720 lines containing **two complete theme blocks and two overlapping sets of media queries** — clear evidence of layers of edits, with contradictory font-size declarations (e.g. `74px` declared globally *after* mobile `clamp()` rules).
-- The primary CTA's disabled state explained the problem only in fine print.
+**Difficult:** Knowing which claims are verified vs placeholders; scanning the long home page; maintaining overlapping CSS blocks.
 
-### What is difficult
-- Scanning a very long homepage where several sections repeat the same "Book a consultation" message.
-- Knowing which statements are verified vs placeholders — the site does not mark them differently.
-- Finding Careers (it was an orphan page — now linked in the footer).
+**Missing:** Real proof points, a DTA/DTT comparison, a documented content-review workflow.
 
-### What is missing
-- Real proof: testimonials with permission, named staff, outcome data, referral-partner logos.
-- A decision aid: a simple "DTA vs DTT, which fits?" comparison table.
-- Information density — many sections could say more with fewer words.
+**Should do:** Rename or replace the two hollow social-proof sections; consolidate CSS; add a visible "verified content" marker; close the email config gap.
 
-### What should be done
-1. Ship fewer, denser sections; add a DTA/DTT comparison table near the top.
-2. Replace the fake "testimonial" and "team" sections with real content once permissions exist — until then, rename them honestly ("Our approach," "The people who support each program").
-3. Consolidate the CSS into a single source of truth (see Developer report).
+## 3. Manager — program / operations
 
----
+**Fine:** The admin dashboard is genuinely useful: KPI cards, search, status filter, per-booking details, status changes and deletion. It works on mobile (stacked cards). Bookings carry all operational details (program, participant age, accessibility, transportation, notes, UTM source).
 
-## 3. Persona: The Manager (program / operations)
+**Wrong:** No pagination or export — with hundreds of bookings the single list will get unwieldy. No assignment/owner field, no follow-up date, no audit trail of status changes. The schedule still has a 2:30–3:30 PM "details to confirm" gap.
 
-### What is fine
-- Program descriptions, activity lists, the 9-row daily schedule, meal policy, and non-discrimination statement give staff a solid content base.
-- "How it works" (consultation → tailored plan → ongoing support) is a clear intake narrative.
-- The Safety page gives families a good list of questions to ask — useful as a staff training checklist too.
+**Difficult:** Working a queue without ownership or due dates; keeping staff content current without a CMS; no notification when a new booking arrives until email is enabled.
 
-### What is wrong
-- Operating days and holiday hours are still unconfirmed; the site says so, but that leaves a core operational fact blank.
-- The schedule's 2:30–3:30 PM gap reads as unfinished.
-- No referral workflow, enrollment checklist, family-communication cadence, or emergency-procedure summary.
-- No content management path: every text change requires a code change and redeploy.
+**Missing:** CSV export, assignment, follow-up reminders, activity log, operating-calendar management.
 
-### What is difficult
-- Answering the same basic questions the website deliberately defers.
-- Keeping all "confirm with the center" wording accurate as policies evolve.
-- Coordinating content updates with a developer.
+**Should do:** Add pagination + CSV export, assignee and follow-up date fields, and a status-change history. Then enable email so the team is notified immediately.
 
-### What is missing
-- Staff directory and role descriptions, referral packet, transport policy, availability/status indicator, downloadable forms.
+## 4. Sales person — enrollment / growth
 
-### What should be done
-1. Publish verified hours, holidays, and referral/enrollment steps.
-2. Add a lightweight content source (JSON/Markdown files or a small CMS) so staff can edit copy without touching JSX.
-3. Add a "Current status" note (e.g. "Now accepting inquiries for DTA") that can be updated easily.
+**Fine:** Every "Book free consultation" CTA now reaches a working 4-step form that actually stores leads. UTM source/medium/campaign are captured on each booking. Admin shows counts by status for pipeline visibility. Strong SEO base: prerendered HTML, structured data, sitemap, AI crawler files.
 
----
+**Wrong:** No analytics is connected, so traffic → booking conversion cannot be measured. No phone/click-to-call. Email notifications are off, so speed-to-lead depends on someone checking the dashboard. Careers page is reachable only from the footer.
 
-## 4. Persona: The Sales Person (enrollment / growth)
+**Difficult:** Attributing leads, proving ROI, responding fast enough, explaining DTA vs DTT in one sentence.
 
-### What is fine
-- Strong emotional framing and repeated, well-placed CTAs (header, hero, section ends, footer banner).
-- Low-pressure language is a genuine conversion asset in this sector.
-- Solid SEO foundations: per-route title/description, LocalBusiness schema, OG tags, and now a valid sitemap + robots.txt.
+**Missing:** Privacy-friendly analytics with consent, conversion events, click-to-call, a thank-you/next-steps email, Google Business Profile linkage.
 
-### What is wrong
-- **No conversion instrumentation.** The cookie page states plainly that no analytics is connected, so there is no way to see which pages or campaigns produce inquiries.
-- **No click-to-call.** For a local service business, the absence of a phone number is a direct lead killer.
-- Until this review, the submit button was disabled unless an env var was set — i.e. the site could ship with **zero lead capture**.
-- Careers had no inbound link (fixed).
+**Should do:** Enable Resend email, add Plausible/analytics gated by the existing cookie preference, publish a phone number, and add UTM capture to all outbound campaign links.
 
-### What is difficult
-- Measuring a funnel, attributing leads, or proving marketing ROI.
-- Explaining DTA vs DTT in one sentence during a phone call.
-- Reassuring families about fit without published proof.
+## 5. Auditor — compliance, privacy, risk
 
-### What is missing
-- Privacy-friendly analytics with consent, conversion events, UTM capture, a thank-you/confirmation experience, a downloadable one-pager, Google Business Profile linkage.
+**Fine:** Booking data flow is server-side only (service-role key never reaches the browser); rate limiting, honeypot, server-side validation, PHI rejection, signed HttpOnly admin cookies with 8-hour expiry, `SameSite=Lax`, `Secure` in production, constant-time password comparison. `/admin` is `noindex` + disallowed in robots. Lighthouse accessibility 100. No console errors on any route.
 
-### What should be done
-1. Configure `VITE_CONTACT_ENDPOINT` (or email fallback) immediately — see `.env.example`.
-2. Add privacy-friendly analytics (e.g. Plausible) gated by the existing cookie preference control.
-3. Add a verified phone number with click-to-call and capture the lead source in the form payload.
+**Wrong:** Policies are still drafts with "Before launch" instructions and no effective dates. No data-retention period or DPA with the form/email provider. No CSRF token on state-changing API calls (mitigated by SameSite=Lax). No audit log of who changed a booking status. Rate limiter is in-memory and resets on cold start.
+
+**Difficult:** Demonstrating retention, consent and access controls once Supabase/Resend are live; mapping DTA/DTT claims to Arizona DDD/HCBS rules.
+
+**Missing:** Approved legal policies with dates, image permissions register, accessibility statement, incident procedure, vendor DPAs.
+
+**Should do:** Legal review before launch; document retention and vendor data flows; add a status-change audit table; add CSRF tokens or origin checks if the site moves to a broader audience.
+
+## 6. Designer — visual & brand
+
+**Fine:** Consistent pine/gold/paper system, editorial type, generous whitespace, sticky header with anchor offset, reduced-motion support, focus-visible outlines, skip link. The booking stepper and admin cards follow the same visual language. Tap targets now meet WCAG 2.5.8 (24px, 44px on touch).
+
+**Wrong:** The CSS remains two overlapping theme blocks with duplicate media queries — the source of the 74px overflow regression found in this pass. Small labels at 9–11px still pass contrast now but are visually tiny. Repeated "Representative image" badges compete with CTAs.
+
+**Difficult:** Safely changing any value when a later rule may override it; keeping the admin table legible on narrow screens (now handled by stacked cards).
+
+**Missing:** A single token layer, visual-regression snapshots, real brand photography, documented type/spacing scale.
+
+**Should do:** Consolidate CSS into one source of truth, delete dead selectors (`.service-row`, `.approach-*`, `.standards-*`), bump micro-labels to 12px, and add visual regression tests.
+
+## 7. Developer — code & maintainability
+
+**Fine:** API handlers are small and shared (`server/*`), the same handlers run in dev via a Vite plugin and in prod as Vercel functions. Validation, storage and email are separated. Build passes; prerender works; routes have per-page metadata; no console errors.
+
+**Wrong:** `/contact` and `/book` duplicate inquiry logic and field mapping. No error boundary, no tests, no linter, no CI. The CSS duplication noted above. `data/bookings.json` fallback is dev-only and will not persist on Vercel (documented, but a footgun if env vars are forgotten). Admin table ARIA needed two fixes this pass.
+
+**Difficult:** Onboarding; debugging cascade overrides; changing shared form behaviour in two places.
+
+**Missing:** Component split, unit/E2E tests, CI, error boundary, typed env vars, monitoring/alerting for failed email sends.
+
+**Should do:** Extract a shared inquiry hook, add tests covering all 16 routes + API flows, add ESLint/Prettier + CI, add an error boundary, and alert on email failures.
+
+## 8. Investor — growth, value, risk
+
+**Fine:** A real end-to-end lead capture system now exists: form → database → admin pipeline, with email ready to switch on. Static hosting + managed free-tier services keep costs negligible. Crawlability work (prerender, schema, llms.txt, AI crawler rules) is ahead of most small competitors. Lighthouse 100 across the board.
+
+**Wrong:** Without the Vercel env vars, production bookings have nowhere durable to go and `/admin` is locked — launch readiness depends entirely on configuration. No analytics means no funnel data. No proof points (testimonials, outcomes, staff). Draft policies are a legal risk.
+
+**Difficult:** Estimating conversion or CAC; due diligence on compliance; trusting a handoff where key values live in env vars rather than code.
+
+**Missing:** KPI dashboard, lead-source reporting, capacity/utilization metrics, licensing/accreditation evidence, roadmap, configured monitoring.
+
+**Should do:** Configure Supabase + admin password + Resend now, enable privacy-friendly analytics, publish real outcomes and testimonials, and formalize policies. That converts a well-built site into a measurable acquisition engine.
 
 ---
 
-## 5. Persona: The Auditor (compliance, privacy, risk)
+## Routing / endpoint audit
 
-### What is fine
-- Privacy notice, Terms, and Cancellation pages exist and are clearly labelled as general information.
-- Strong privacy hygiene in the UI: repeated "do not send diagnoses/medications" warnings, a honeypot field, no analytics by default, localStorage-only cookie preference.
-- Non-discrimination statement, 911 emergency disclaimer, and representative-image disclaimers are present.
-- All routes render without console errors; no broken external dependencies in the app code.
+- **All 16 routes render** with correct titles, `main` landmark and no console errors.
+- **Every in-app `Link`/`NavLink` resolves** to a defined route; no `href="#"`, no empty `to`, no textless controls (the icon-only menu button and logo links have `aria-label`).
+- **Fixed this pass:** `/contact` submit had no endpoint → now posts to `/api/bookings`; footer logo gained an accessible name.
+- **Verified working:** header/hero/banner "Book" CTAs → `/book`; pathway hash anchors `#dtt`/`#dta` scroll correctly under the sticky header; `/services#dta` deep link; hash-driven contact topic.
+- **API endpoints:** `POST /api/bookings`, `GET /api/bookings` (admin), `PATCH|DELETE /api/bookings/:id` (admin), `POST /api/admin/login|logout`, `GET /api/admin/me` — all present and exercised.
+- **Email:** implemented but dormant by design until Resend keys are set; bookings still save and appear in admin.
 
-### What is wrong
-- All three policy pages contain "Before launch" instructions addressed to the business — they are **drafts, not publishable policies**. There is no effective date, owner, or version.
-- No verified business contact identity, no data-retention statement, and no data-processing terms for whatever endpoint receives inquiries.
-- `robots.txt` was invalid (the SPA rewrite served HTML) — fixed by adding real `public/robots.txt` and `sitemap.xml`.
-- No cookie banner: the preference page is opt-in only, which is defensible only because no cookies are set — that must be re-audited once analytics is added.
+## Responsiveness audit
 
-### What is difficult
-- Demonstrating consent, retention, and data-flow compliance once a third-party form endpoint is introduced.
-- Mapping the site's claims to Arizona DDD/HCBS requirements for DTA/DTT.
+- Harness checked 320/360/375/414/600/768/900/1024/1280px across all pages. **Zero horizontal overflow** after the checkbox fix.
+- Tap targets: 24px minimum everywhere, 44px on touch devices; checkboxes/radios enlarged to 16px inside full-size clickable labels.
+- Admin table → stacked cards ≤980px; booking form rows collapse ≤620px; mobile nav collapses ≤900px; reduced-motion honoured.
 
-### What is missing
-- Legally reviewed policies with dates, an accessibility statement, an image-permission log, staff screening disclosures, and documented incident/emergency procedures.
+## Bug & quality fixes applied this pass
 
-### What should be done
-1. Legal review of Privacy / Terms / Cancellation before launch; add effective dates and remove "Before launch" text.
-2. Document the data flow: form → endpoint → inbox → retention period.
-3. Keep a permissions register for every photo used, and add a WCAG/accessibility statement.
+1. `/contact` dead submit → real API POST + consent.
+2. `/contact` 74px/43px overflow → scoped checkbox width.
+3. Sub-24px link targets → global min-height + touch media query.
+4. Two `/contact` contrast failures → darker muted text.
+5. Admin ARIA table violations → presentation/cell roles.
+6. Footer logo accessible name.
 
----
+## Verification
 
-## 6. Persona: The Designer (visual and brand)
-
-### What is fine
-- Cohesive palette (deep pine, warm gold, paper white), editorial serif headings, disciplined spacing, and a strong hero image treatment.
-- Thoughtful responsive intent: grids collapse cleanly, sticky header offset (`scroll-padding-top`) is respected by anchor links, and `prefers-reduced-motion` is supported.
-- Focus-visible outlines and a skip link show real accessibility awareness.
-
-### What is wrong
-- **12 color-contrast failures** were measured by Lighthouse — gold labels on light backgrounds (~3.4:1) and a grey caption on the dark team section (1.96:1). All fixed (gold darkened to `#75551a`, label grey to `#657066`, caption to `#d7e1d8`).
-- The duplicated CSS blocks make the cascade hard to reason about; the same selectors are redefined at multiple points with different values.
-- Several micro-labels are 9–11px; they pass contrast now but remain small for low-vision users.
-- Repeated "Representative image" badges compete visually with the CTA in the program cards.
-
-### What is difficult
-- Safely changing a value when it may be overridden by a later block.
-- Testing at 320px, where `body { min-width: 320px }` caused a 15px horizontal scrollbar (fixed).
-
-### What is missing
-- A documented type scale and spacing tokens, a real brand photography set, a dark-mode consideration, and visual-regression snapshots.
-
-### What should be done
-1. Consolidate CSS into one themed token layer; delete dead selectors (`.service-row`, `.approach-*`, `.standards-*`, etc. no longer used by the JSX).
-2. Keep the accessible palette; bump the smallest labels to 12px minimum.
-3. Replace the repeated representative-image badges with a single clear disclosure near the gallery.
-
----
-
-## 7. Persona: The Developer (code and maintainability)
-
-### What is fine
-- Components are small and readable; semantic HTML and ARIA are used correctly (menu `aria-expanded`/`aria-controls`, status roles, labelled inputs).
-- Route-level metadata effect handles title + description + hash scrolling in one place.
-- Honeypot spam trap, lazy-loaded images, image-copy build plugin, SPA rewrite config — all sensible.
-
-### What is wrong
-- Everything lives in one 1,605-line `App.jsx`. Contact logic is embedded in the presentational component.
-- `styles.css` contains two `:root` blocks and two sets of breakpoints with overlapping, sometimes contradictory rules — a classic merge-without-cleanup state.
-- `ContactPage` read `window.location.search` directly instead of using router hooks, so the topic did not reset on client-side navigation (fixed with `useSearchParams`).
-- No error boundary, no tests, no linter/formatter config, no CI.
-- `vercel.json`'s catch-all rewrite made `/robots.txt` return HTML (fixed with real `public/` files).
-
-### What is difficult
-- Onboarding a new developer; debugging which CSS rule actually wins; changing contact behaviour safely.
-
-### What is missing
-- Component/page split, unit + E2E tests, CI pipeline, error boundary, typed env vars, and a proper setup section in the README.
-
-### What should be done
-1. Split `App.jsx` into `components/` and `pages/`; move form logic into a hook.
-2. Consolidate CSS to one source of truth and delete dead rules.
-3. Add ESLint + Prettier, an error boundary, and a small Playwright smoke test covering all 14 routes.
-
----
-
-## 8. Persona: The Investor (growth, value, risk)
-
-### What is fine
-- Credible, trustworthy brand presentation in a sensitive sector — the site's honesty is a genuine differentiator.
-- Very low operating cost: static SPA, no backend to maintain (as long as the form endpoint is a cheap third-party service).
-- Strong technical SEO base and a fully responsive experience across phone, tablet, and desktop.
-- Clear service lines (DTA/DTT) and a defined geographic market (Peoria, AZ).
-
-### What is wrong
-- Out of the box, the site cannot capture a lead (no configured endpoint, no phone). Growth is impossible until that is fixed.
-- No analytics means no funnel data, no CAC analysis, and no evidence for marketing decisions.
-- No proof points: no testimonials, named staff, outcome metrics, or referral-partner relationships.
-- Draft legal policies and unverified business details are launch risk.
-
-### What is difficult
-- Estimating conversion, capacity, or unit economics from the current site.
-- Due diligence on compliance and on the durability of the "no invented claims" content model.
-
-### What is missing
-- KPI dashboard, lead funnel, referral-source tracking, capacity/utilization metrics, licensing/accreditation evidence, and a documented roadmap.
-
-### What should be done
-1. Close the launch blockers (endpoint/email, phone, legal review) — this is the highest-ROI work.
-2. Instrument privacy-friendly analytics and publish real outcome/testimonial content once permissions are secured.
-3. Produce a one-page impact/capacity dashboard for future partners and funders.
-
----
-
-## 9. Routing audit — complete matrix
-
-**Routes defined in `App.jsx` (14 + 404):**
-`/`, `/services`, `/how-it-works`, `/about`, `/careers`, `/find-care`, `/contact`, `/safety`, `/faqs`, `/privacy`, `/terms`, `/cancellation`, `/cookies`, `*`.
-
-**Result:** every in-app `Link`/`NavLink` target resolves to a defined route. There are **no `href="#"` placeholders, no empty `to=""`, and no textless interactive controls** (the icon-only menu button has `aria-label`).
-
-| Finding | Detail | Fix applied |
-|---------|--------|-------------|
-| Orphan page | `/careers` rendered correctly but had **zero inbound links**; the only careers-related link went to `/contact?topic=careers` | Added "Careers" link to the footer Explore column |
-| Dead submit button | The contact form's submit button was `disabled` whenever `VITE_CONTACT_EMAIL` was unset, with no server endpoint | Added `VITE_CONTACT_ENDPOINT` JSON-POST support + documented both env vars; button now disables only when neither is configured and shows "Sending…" while submitting |
-| Stale query state | Navigating `/contact?topic=appointment` → `/contact` via the footer kept the appointment topic and extra fields | Switched to `useSearchParams` + effect-driven reset |
-| Hash anchors | `<a href="#dtt">` / `#dta` and `/services#dta` | Verified live: smooth-scroll lands 96px below the sticky header as intended |
-| Low discoverability | `/safety`, `/find-care`, `/privacy`, `/terms`, `/cancellation`, `/cookies` are footer-only | Acceptable; recommend adding contextual links in body copy (e.g. "Read our safety questions" near the Safety content) |
-| SPA deep links | `vercel.json` catch-all rewrite | Verified `/no-such-page` and all deep links render the SPA; added real `public/robots.txt` + `sitemap.xml` so crawlers get valid files |
-
----
-
-## 10. Responsiveness audit
-
-**Method:** same-origin iframe harness at **320, 360, 375, 414, 600, 768, 900, 1024, 1280px** across `/`, `/services`, `/faqs`, `/contact` (36 combinations), measuring `scrollWidth - clientWidth`.
-
-| Viewport class | Behaviour |
-|----------------|-----------|
-| ≤ 620px | Single-column stacks; hero actions stack; announcement wraps; nav becomes a full-width dropdown; contact fields go single-column |
-| 621–900px | Two-column cards/tables compress; nav collapsed; footer reflows to 3 then 2 columns |
-| > 900px | Full multi-column desktop layout; sticky header with offset anchors |
-
-**Issues found and fixed:**
-- **320px:** 15px horizontal overflow on every page, caused by `body { min-width: 320px }` exceeding the 305px layout viewport when a scrollbar is present → changed to `min-width: 0`. Result: **0 overflow in all 36 combinations**.
-- Buttons, modals, and screens: the site has no modal dialogs. All buttons are inline-flex with wrapping, adequate min-heights (42–52px), and visible focus states.
-
-**Caveat:** the duplicated CSS blocks mean future responsive edits can be silently overridden. Consolidating them is the main durability risk.
-
----
-
-## 11. Bugs and quality fixes applied
-
-1. `src/styles.css` — 320px overflow (`body min-width`).
-2. `src/styles.css` — 12 color-contrast failures fixed by darkening `--coral` to `#75551a`, label grey to `#657066`, and the dark-section figcaption to `#d7e1d8`.
-3. `public/robots.txt` + `public/sitemap.xml` added; SEO audit now 100.
-4. `src/App.jsx` — contact topic now derives from `useSearchParams` and resets on navigation.
-5. `src/App.jsx` — contact form supports a real JSON POST endpoint (`VITE_CONTACT_ENDPOINT`) with success/error states, loading state, and honeypot; mailto fallback retained via `VITE_CONTACT_EMAIL`.
-6. `src/App.jsx` — Careers page linked from the footer.
-7. `.env.example` and `LAUNCH-HANDOFF.md` updated to document the new configuration.
-
----
-
-## 12. Verification results
-
-- `npm run build` — passes (310 KB JS / 41 KB CSS, ~96 KB JS gzipped).
-- Lighthouse (home, after fixes): **Accessibility 100, Best Practices 100, SEO 100**, zero failures.
-- All 14 routes: correct `h1`, correct per-route `document.title` and meta description, zero console errors, `main` landmark present.
-- Responsive harness: 36/36 viewport combinations with zero horizontal overflow.
-- Live interaction checks: mobile menu, FAQ accordions, anchor scrolling with sticky header, contact topic reset, footer Careers link — all pass.
-
-## 13. Launch checklist (owner: business)
-
-- [ ] Set `VITE_CONTACT_ENDPOINT` or `VITE_CONTACT_EMAIL` (without this, no inquiries arrive).
-- [ ] Publish a verified phone number and email; confirm address, service-area wording, hours, and holidays.
-- [ ] Replace representative imagery and add staff content only with signed permissions.
-- [ ] Have counsel review Privacy, Terms, and Cancellation; add effective dates and remove draft notes.
-- [ ] Confirm DTA/DTT eligibility, referral steps, funding/AHCCCS, transportation, and parent-training statements.
-- [ ] Add privacy-friendly analytics and re-check the cookie disclosure when tracking is enabled.
+- `npm run build` passes; 15 routes prerendered to static HTML.
+- Lighthouse **100/100/100** on `/`, `/book`, `/contact`, `/admin`, `/faqs`.
+- API edge cases: PHI → 422, weekend → 422, past date → 422, honeypot → silent 201, tampered cookie → 401, wrong password → 401, valid login → session, status change → updated stats.
+- Booking UI: 4 steps → confirmation reference. Admin UI: login → list → expand details.
+- 16 routes at 320px: zero overflow, zero dead controls.

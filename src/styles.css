@@ -236,10 +236,10 @@ h1 em, h2 em { color: var(--pine); font-weight: 500; }
 .form-heading p { margin: 0; color: #657069; font-size: 10px; }
 .contact-form label { display: grid; gap: 6px; color: #3e4a42; font-size: 10px; font-weight: 600; }
 .contact-form label > span { display: contents; color: var(--coral); }
-.contact-form label > small { display: inline; color: #818981; font-size: 9px; font-weight: 400; }
+.contact-form label > small { display: inline; color: #5f6a63; font-size: 9px; font-weight: 400; }
 .contact-form input, .contact-form select { width: 100%; min-height: 43px; padding: 9px 11px; color: var(--ink); background: var(--white); border: 1px solid #d5d9d0; border-radius: 0; outline: none; }
 .contact-form input:focus, .contact-form select:focus { border-color: var(--pine); box-shadow: 0 0 0 2px rgba(34,75,64,.12); }
-.form-privacy { margin: -4px 0 0; color: #68736b; font-size: 10px; line-height: 1.75; }
+.form-privacy { margin: -4px 0 0; color: #5f6a63; font-size: 10px; line-height: 1.75; }
 .contact-form .button { justify-self: start; }
 .contact-form .button:disabled { cursor: not-allowed; opacity: .56; transform: none; }
 .form-status { margin: 0; color: var(--pine); font-size: 11px; }
@@ -761,14 +761,14 @@ body { background: var(--white); }
 .choice { position: relative; display: grid; gap: 3px; padding: 14px 16px 14px 44px; border: 1px solid var(--line); cursor: pointer; transition: border-color .18s ease, background .18s ease; }
 .choice:hover { border-color: var(--pine); }
 .choice.selected { border-color: var(--pine); background: #eef3ee; }
-.choice input { position: absolute; left: 16px; top: 18px; accent-color: var(--pine); }
+.choice input { position: absolute; left: 16px; top: 18px; width: 16px; height: 16px; accent-color: var(--pine); }
 .choice strong { color: var(--ink); font-size: 15px; }
 .choice small { color: var(--muted); font-size: 12px; font-weight: 400; }
 .smart-hint { margin: -3px 0 0; padding: 10px 13px; background: var(--sky); color: var(--pine); font-size: 13px; line-height: 1.6; }
 
 .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .check-card { display: flex !important; align-items: flex-start; gap: 10px; padding: 14px; border: 1px solid var(--line); cursor: pointer; }
-.check-card input { margin-top: 3px; accent-color: var(--pine); flex: none; }
+.check-card input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--pine); flex: none; }
 .check-card span { display: grid; gap: 3px; }
 .check-card strong { color: var(--ink); font-size: 14px; }
 .check-card small { color: var(--muted); font-size: 12px; font-weight: 400; line-height: 1.5; }
@@ -780,7 +780,9 @@ body { background: var(--white); }
 .review-list dt { color: var(--muted); font-size: 13px; }
 .review-list dd { margin: 0; color: var(--ink); font-size: 14px; font-weight: 600; }
 .consent-label { display: flex !important; align-items: flex-start; gap: 10px; font-size: 13px !important; line-height: 1.6; }
-.consent-label input { margin-top: 3px; accent-color: var(--pine); flex: none; }
+.contact-form .consent-label > span { display: block; color: #3e4a42; }
+.contact-form .consent-label input { width: 16px; height: 16px; min-height: 0; }
+.consent-label input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--pine); flex: none; }
 .small-print { color: var(--muted); font-size: 12px !important; font-weight: 400 !important; line-height: 1.6; }
 .form-status.error { padding: 11px 13px; background: #f8e8e4; color: #8b2f22; border-left: 3px solid #a63b2b; font-size: 13px; }
 .button-ghost { color: var(--ink) !important; background: transparent !important; border: 1px solid var(--line) !important; }
@@ -860,9 +862,42 @@ body { background: var(--white); }
   .booking-row { grid-template-columns: 1fr 1fr; gap: 12px; }
   .booking-row .cell-primary { grid-column: 1 / -1; }
   .booking-row > div[data-label]::before { content: attr(data-label) ": "; color: var(--muted); font-size: 11px; text-transform: uppercase; }
-  .row-expand { grid-column: 1 / -1; justify-self: start; }
+  .row-expand-cell { grid-column: 1 / -1; justify-self: start; }
   .booking-detail dl { grid-template-columns: 1fr 1fr; }
 }
+/* Minimum target size for all text links (WCAG 2.5.8). Touch devices get
+   a larger 44px target; desktop keeps a compact 24px. */
+.nav-link,
+.arrow-link,
+.text-action,
+.email-link,
+.wordmark,
+.skip-link,
+.pathway-links a,
+.footer-column a,
+.footer-bottom a,
+.footer-about > a,
+.link-danger,
+.row-expand {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+}
+@media (pointer: coarse) {
+  .nav-link,
+  .arrow-link,
+  .text-action,
+  .email-link,
+  .pathway-links a,
+  .footer-column a,
+  .footer-bottom a,
+  .footer-about > a,
+  .link-danger,
+  .row-expand {
+    min-height: 44px;
+  }
+}
+
 @media (max-width: 620px) {
   .booking-page { padding: 44px 0 64px; }
   .booking-intro h1 { font-size: 40px; }

@@ -1044,7 +1044,6 @@ function ContactPage() {
   const [status, setStatus] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL;
-  const contactEndpoint = import.meta.env.VITE_CONTACT_ENDPOINT;
   const [topic, setTopic] = useState(() => topicFromParam(topicParam));
 
   // Keep the form in sync with the URL when navigating between
@@ -1064,63 +1063,64 @@ function ContactPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     if (formData.get("website")) {
-      setStatus("We could not process that request. Please try again.");
+      setStatus("Thank you for your message.");
+      return;
+    }
+    if (!formData.get("consent")) {
+      setStatus("Please agree to be contacted before submitting.");
       return;
     }
 
-    // Preferred path: post to a configured form endpoint when one is set.
-    if (contactEndpoint) {
-      setSubmitting(true);
-      setStatus("");
-      try {
-        const response = await fetch(contactEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formData.get("name"),
-            email: formData.get("email"),
-            phone: formData.get("phone") || "",
-            location: formData.get("location"),
-            interest: formData.get("interest"),
-            preferredDate: formData.get("preferred-date") || "",
-            preferredTime: formData.get("preferred-time") || "",
-            isAppointment,
-          }),
-        });
-        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-        setStatus(
-          "Thank you — your request was sent. The care team will follow up with you.",
-        );
-        form.reset();
-        setTopic(topicFromParam(topicParam));
-      } catch {
-        setStatus(
-          "We could not send that right now. Please try again, or use the email link on this page.",
-        );
-      } finally {
-        setSubmitting(false);
+    const interest = String(formData.get("interest") || "");
+    const program = interest.includes("Adult")
+      ? "dta"
+      : interest.includes("Kids")
+        ? "dtt"
+        : "unsure";
+    const timeMap = {
+      Morning: "morning",
+      Afternoon: "afternoon",
+      "Early evening": "early-evening",
+    };
+
+    setSubmitting(true);
+    setStatus("");
+    try {
+      // All inquiries go through the same real booking endpoint used by /book,
+      // so no configuration secret is needed for the form to work.
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone") || "",
+          city: formData.get("location"),
+          program,
+          participantAge: "",
+          contactMethod: formData.get("phone") ? "phone" : "email",
+          preferredDate: formData.get("preferred-date") || "",
+          preferredTime: timeMap[formData.get("preferred-time")] || "",
+          notes: `Website inquiry: ${interest}`,
+          consent: true,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || data.error || "Could not send your request.");
       }
-      return;
-    }
-
-    if (!contactEmail) {
       setStatus(
-        "The care team’s official email address has not been added yet. Please confirm it before publishing this form.",
+        `Thank you — your request was received (reference ${data.reference}). The care team will follow up. This is not a confirmed appointment.`,
       );
-      return;
+      form.reset();
+      setTopic(topicFromParam(topicParam));
+    } catch (error) {
+      setStatus(
+        `We could not send that right now. ${error.message || "Please try again."}`,
+      );
+    } finally {
+      setSubmitting(false);
     }
-    const subject = encodeURIComponent(
-      `${isAppointment ? "Appointment request" : "Website inquiry"}: ${formData.get("interest")}`,
-    );
-    const body = encodeURIComponent(
-      `Name: ${formData.get("name")}\nEmail: ${formData.get("email")}\nPhone: ${formData.get("phone") || "Not provided"}\nLocation: ${formData.get("location")}\nInterested in: ${formData.get("interest")}\nPreferred day: ${formData.get("preferred-date") || "Not provided"}\nPreferred time: ${formData.get("preferred-time") || "Not provided"}\n\nPlease contact me to discuss next steps. This is a request, not a confirmed appointment.\n\nI have not included sensitive health information.`,
-    );
-    window.location.href = `mailto:${contactEmail}?subject=${subject}&body=${body}`;
-    setStatus(
-      isAppointment
-        ? "Your email app should open with an appointment request draft. Your appointment is not confirmed until the care team replies."
-        : "Your email app should open with a draft. Review and send it to contact the care team.",
-    );
   }
 
   return (
@@ -1246,17 +1246,22 @@ function ContactPage() {
               </label>
             </div>
           )}
+          <label className="consent-label">
+            <input type="checkbox" name="consent" />
+            <span>
+              I agree that Arizona Development Center may contact me about this
+              request. <strong>*</strong>
+            </span>
+          </label>
           <p className="form-privacy">
-            {contactEndpoint
-              ? "Your request will be sent securely to the care team. Please do not include diagnoses, medications, or other sensitive health information."
-              : contactEmail
-                ? "Your email app will open with a brief message to the care team. Please do not include diagnoses, medications, or other sensitive health information."
-                : "This form is not ready to send. The business must configure a contact endpoint or its official contact email first. Please do not include diagnoses, medications, or other sensitive health information."}
+            Your request is sent securely to the care team and saved in our
+            booking system. Please do not include diagnoses, medications, or
+            other sensitive health information.
           </p>
           <button
             className="button button-dark"
             type="submit"
-            disabled={(!contactEmail && !contactEndpoint) || submitting}
+            disabled={submitting}
             aria-busy={submitting}
           >
             {submitting ? "Sending…" : "Request a consultation"}
@@ -1413,7 +1418,11 @@ function SiteFooter() {
     <footer className="site-footer">
       <div className="wrap footer-main">
         <div className="footer-about">
-          <Link className="wordmark footer-wordmark" to="/">
+          <Link
+            className="wordmark footer-wordmark"
+            to="/"
+            aria-label={`${brandName} home`}
+          >
             <img
               className="brand-logo footer-brand-logo"
               src="/images/brand-logo.png"

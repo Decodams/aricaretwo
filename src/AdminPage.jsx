@@ -327,7 +327,7 @@ export default function AdminPage() {
               <span role="columnheader">Status</span>
             </div>
             {filtered.map((b) => (
-              <article key={b.id} className="booking-row-wrap">
+              <article key={b.id} className="booking-row-wrap" role="presentation">
                 <div className="booking-row" role="row">
                   <div className="cell-primary" role="cell">
                     <strong>{b.name}</strong>
@@ -357,14 +357,16 @@ export default function AdminPage() {
                       ))}
                     </select>
                   </div>
-                  <button
-                    className="row-expand"
-                    type="button"
-                    onClick={() => setExpanded(expanded === b.id ? null : b.id)}
-                    aria-expanded={expanded === b.id}
-                  >
-                    {expanded === b.id ? <X size={16} /> : "Details"}
-                  </button>
+                  <div role="cell" className="row-expand-cell">
+                    <button
+                      className="row-expand"
+                      type="button"
+                      onClick={() => setExpanded(expanded === b.id ? null : b.id)}
+                      aria-expanded={expanded === b.id}
+                    >
+                      {expanded === b.id ? <X size={16} /> : "Details"}
+                    </button>
+                  </div>
                 </div>
                 {expanded === b.id && (
                   <div className="booking-detail">
