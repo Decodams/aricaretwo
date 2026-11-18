@@ -11,6 +11,7 @@ import {
 import BookingPage from "./BookingPage.jsx";
 import AdminPage from "./AdminPage.jsx";
 import ContactDetails from "./ContactDetails.jsx";
+import TestimonialCarousel from "./TestimonialCarousel.jsx";
 import { siteConfig, addressLine, telHref } from "../config/site.ts";
 import { images } from "../data/images.ts";
 import { services, getService } from "../data/services.ts";
@@ -497,20 +498,7 @@ function FamiliesSection() {
             </h2>
           </div>
         </div>
-        <div className={`quote-grid count-${Math.min(testimonials.length, 6)}`}>
-          {testimonials.map((item) => (
-            <figure className="quote-card" key={item.firstName + item.quote}>
-              <blockquote>“{item.quote}”</blockquote>
-              <figcaption>
-                <strong>{item.firstName}</strong>
-                <span>
-                  {item.relationship}
-                  {item.program ? ` · ${item.program}` : ""}
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+        <TestimonialCarousel items={testimonials} />
       </div>
     </section>
   );
