@@ -70,4 +70,5 @@ No Supabase configured: bookings fall back to ./data/bookings.json (dev only)
 - Responsive: all 16 routes at 320px plus 320–1280px sweeps with zero horizontal overflow; 24px minimum tap targets (44px on touch).
 - Lighthouse 100/100/100 on `/`, `/book`, `/contact`, `/admin` and `/faqs`.
 - `/contact` now also submits to `/api/bookings` (no configuration needed); consent checkbox added.
+- The 2026 redesign added `/services/dta` and `/services/dtt`, with legacy `/services#dta` and `/services#dtt` redirects. All contact details on `/book`, `/contact`, the header and the footer come from `config/site.ts` and hide when empty.
 - See `REVIEW-REPORT.md` for the latest 8-persona walkthrough and the full defect list.

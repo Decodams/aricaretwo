@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST — public booking submission
+  // POST: public booking submission
   const ip =
     req.headers?.["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.headers?.["x-real-ip"] ||
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
   // Honeypot: silently accept but do not store.
   if (body.website) {
-    return json(res, 201, { ok: true, reference: "—", message: "Thank you." });
+    return json(res, 201, { ok: true, reference: "Pending", message: "Thank you." });
   }
 
   const { booking, errors, valid } = validateBooking(body);

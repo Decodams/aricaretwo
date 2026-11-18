@@ -13,7 +13,7 @@ import {
 const STATUSES = ["pending", "contacted", "confirmed", "cancelled"];
 
 function formatDate(value) {
-  if (!value) return "—";
+  if (!value) return "Not provided";
   return new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -22,7 +22,7 @@ function formatDate(value) {
 }
 
 function formatCreated(value) {
-  if (!value) return "—";
+  if (!value) return "Not provided";
   return new Date(value).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -241,7 +241,7 @@ export default function AdminPage() {
               Bookings <em>dashboard.</em>
             </h1>
             <p className="admin-muted">
-              Storage: <strong>{meta.storage || "—"}</strong> · Email:{" "}
+              Storage: <strong>{meta.storage || "Not configured"}</strong> · Email:{" "}
               <strong>{meta.emailConfigured ? "configured" : "not configured"}</strong>
             </p>
           </div>
@@ -377,7 +377,7 @@ export default function AdminPage() {
                       </div>
                       <div>
                         <dt>Phone</dt>
-                        <dd>{b.phone || "—"}</dd>
+                        <dd>{b.phone || "Not provided"}</dd>
                       </div>
                       <div>
                         <dt>Location</dt>
@@ -388,7 +388,7 @@ export default function AdminPage() {
                       <div>
                         <dt>Participant</dt>
                         <dd>
-                          {b.participantName || "—"} ({b.participantAge || "age not stated"})
+                          {b.participantName || "Not provided"} ({b.participantAge || "age not stated"})
                         </dd>
                       </div>
                       <div>

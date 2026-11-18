@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import ContactDetails from "./ContactDetails.jsx";
 import {
   ArrowLeft,
   ArrowRight,
@@ -155,7 +156,7 @@ export default function BookingPage() {
         }
         return;
       }
-      setReference(data.reference || "—");
+      setReference(data.reference || "Pending");
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch {
@@ -195,7 +196,7 @@ export default function BookingPage() {
               health information by email.
             </p>
             <div className="booking-success-actions">
-              <Link className="button button-dark" to="/">
+              <Link className="button button-primary" to="/">
                 Back to home <ArrowRight size={17} />
               </Link>
               <Link className="arrow-link" to="/faqs">
@@ -233,6 +234,7 @@ export default function BookingPage() {
               <CalendarDays size={18} /> We reply on weekdays
             </p>
           </div>
+          <ContactDetails compact />
         </div>
 
         <div className="booking-card">
@@ -323,7 +325,7 @@ export default function BookingPage() {
                     ? "For DTT, tell us your child’s age in the next step so we can route your request."
                     : form.program === "dta"
                       ? "For DTA, we’ll ask about the adult participant in the next step."
-                      : "No problem — we can talk through both programs."}
+                      : "No problem. We can talk through both programs."}
                 </p>
               </fieldset>
             )}
@@ -537,11 +539,11 @@ export default function BookingPage() {
                 </button>
               )}
               {step < STEPS.length - 1 ? (
-                <button type="button" className="button button-dark" onClick={next}>
+                <button type="button" className="button button-primary" onClick={next}>
                   Continue <ArrowRight size={17} />
                 </button>
               ) : (
-                <button className="button button-dark" type="submit" disabled={sending}>
+                <button className="button button-primary" type="submit" disabled={sending}>
                   {sending ? "Sending…" : "Send request"} <ArrowRight size={17} />
                 </button>
               )}

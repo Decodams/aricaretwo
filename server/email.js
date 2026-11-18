@@ -61,7 +61,7 @@ export async function sendBookingEmails(booking) {
     result.confirmation = await send({
       to: booking.email,
       replyTo: TO_EMAIL,
-      subject: `We received your consultation request — ${booking.reference || booking.id}`,
+      subject: `We received your consultation request. Reference: ${booking.reference || booking.id}`,
       html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#202a25">
         <h2>Thank you, ${escapeHtml(booking.name)}.</h2>
         <p>We received your request for a free consultation with Arizona Development Center. The care team will follow up to discuss availability. <strong>This is a request, not a confirmed appointment.</strong></p>
