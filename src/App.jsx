@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+import {
+  Link,
+  NavLink,
+  Route,
+  Routes,
+  useLocation,
+  useSearchParams,
+} from "react-router-dom";
+import BookingPage from "./BookingPage.jsx";
+import AdminPage from "./AdminPage.jsx";
 import {
   ArrowDownRight,
   ArrowRight,
@@ -9,6 +18,7 @@ import {
   ChevronDown,
   HeartHandshake,
   Menu,
+  MapPin,
   MoveUpRight,
   Phone,
   ShieldCheck,
@@ -23,26 +33,40 @@ const serviceItems = [
   {
     number: "01",
     id: "dta",
-    title: "DTA | Adult Day Training",
+    title: "Day Treatment and Training – Adult (DTA)",
+    audience: "For adults with developmental disabilities",
     short:
-      "A structured day in Peoria with social, practical, physical, and learning activities for adults.",
+      "A welcoming, structured day focused on life skills, relationships, and participation at a pace that respects each person.",
     detail:
       "Day Treatment and Training for Adults offers a structured setting with life-skills practice, chair yoga and stretching, arts and food crafts, music, trivia and puzzles, social events, and community participation. Activities support skill-building and independence.",
+    activities: [
+      "Life skills development and everyday routines",
+      "Social connection, movement, and creative activities",
+      "Opportunities for community participation",
+    ],
+    progress:
+      "Progress can be discussed around the person’s goals, participation, and skills practiced. Ask the team how updates are shared with individuals and families.",
     image: adultProgramImage,
-    alt: "Adults spending time together in a community room",
-    tone: "butter",
+    alt: "Representative image of adults taking part in a group activity",
   },
   {
     number: "02",
     id: "dtt",
-    title: "DTT | Child and Youth Training",
+    title: "Day Treatment and Training – Kids (DTT)",
+    audience: "For children and youth with developmental disabilities",
     short:
-      "Structured activities for children and youth focused on learning, communication, and participation.",
+      "Age-appropriate activities that encourage communication, confidence, learning, and meaningful connection with others.",
     detail:
       "Day Treatment and Training for Children and Youth includes age-appropriate learning, sensory-motor, cognitive, social, and independence-building activities. Ask the center about program fit and current availability.",
+    activities: [
+      "Communication, social, and learning activities",
+      "Sensory-motor and age-appropriate skill-building",
+      "Practice with routines, choice-making, and participation",
+    ],
+    progress:
+      "Progress is personal. Ask how the team learns what matters to your child and how participation and emerging skills are communicated to families.",
     image: childImage,
-    alt: "Children and teachers taking part in a classroom circle-time activity",
-    tone: "butter",
+    alt: "Representative image of children and a teacher taking part in a group activity",
   },
 ];
 
@@ -98,6 +122,7 @@ const primaryNavigation = [
   ["Programs", "/services"],
   ["How it works", "/how-it-works"],
   ["About", "/about"],
+  ["FAQs", "/faqs"],
 ];
 
 function SiteHeader() {
@@ -112,10 +137,10 @@ function SiteHeader() {
         Skip to content
       </a>
       <div className="announcement">
-        <span>DTA and DTT programs in Peoria, Arizona.</span>
-        <Link to="/how-it-works">
-          What to expect <ArrowRight size={14} />
-        </Link>
+        <span>
+          <MapPin size={14} /> 11001 N 99th Ave, Peoria, AZ
+        </span>
+        <span>Serving Peoria and surrounding communities</span>
       </div>
       <header className="site-header">
         <div className="header-inner wrap">
@@ -151,8 +176,8 @@ function SiteHeader() {
                 {label}
               </NavLink>
             ))}
-            <Link className="header-cta" to="/contact?topic=appointment">
-              Book appointment <CalendarDays size={16} />
+            <Link className="header-cta" to="/book">
+              Book free consultation <CalendarDays size={16} />
             </Link>
           </nav>
         </div>
@@ -188,32 +213,36 @@ function HomePage() {
           <div className="hero-art">
             <img
               src={heroImage}
-              alt="Children and teachers taking part in a classroom circle-time activity"
+              alt="Representative image of children taking part in a group learning activity"
               fetchPriority="high"
             />
+            <span className="hero-credit">Representative image</span>
           </div>
           <div className="wrap hero-inner">
             <div className="hero-copy">
-              <SectionLabel>Arizona Development Center</SectionLabel>
+              <SectionLabel>
+                Home and Community-Based Services · Peoria, Arizona
+              </SectionLabel>
               <h1 id="home-title">
-                DTA and DTT
+                DTA and DTT,
                 <br />
-                <em>in Peoria.</em>
+                <em>centered on you.</em>
               </h1>
               <p className="hero-deck">
-                Day Treatment and Training programs for adults and children and
-                youth. Visit us at 11001 N 99th Ave. in Peoria to learn about
-                activities, transportation, and next steps.
+                Compassionate, person-centered support for adults and children
+                with developmental disabilities. Build skills, find connection,
+                and take part in the community, with family partnership at every
+                step.
               </p>
               <div className="hero-actions">
                 <Link
                   className="button button-paper"
-                  to="/contact?topic=appointment"
+                  to="/book"
                 >
-                  Book appointment <CalendarDays size={17} />
+                  Book Free Consultation <CalendarDays size={17} />
                 </Link>
                 <Link className="text-action" to="/services">
-                  See care options <ArrowDownRight size={17} />
+                  See program options <ArrowDownRight size={17} />
                 </Link>
               </div>
               <div className="hero-note">
@@ -223,21 +252,42 @@ function HomePage() {
           </div>
         </section>
 
-        <section className="pathway-band" aria-label="Care pathways">
+        <section
+          className="trust-strip"
+          aria-label="About Arizona Development Center"
+        >
+          <div className="wrap trust-strip-inner">
+            <p>
+              <strong>Peoria, Arizona</strong>
+              <span>Local day programs</span>
+            </p>
+            <p>
+              <strong>DTA + DTT</strong>
+              <span>Adults, children & youth</span>
+            </p>
+            <p>
+              <strong>Person-centered</strong>
+              <span>Goals, choice & dignity</span>
+            </p>
+            <p>
+              <strong>Family partnership</strong>
+              <span>Questions welcome</span>
+            </p>
+          </div>
+        </section>
+
+        <section className="pathway-band" aria-label="Choose a program">
           <div className="wrap pathway-inner">
-            <p>Where would you like to begin?</p>
+            <p>Start with the program that fits your family.</p>
             <div className="pathway-links">
               <a href="#dtt">
-                Children and youth <ArrowDownRight size={16} />
+                Kids & youth (DTT) <ArrowDownRight size={16} />
               </a>
               <a href="#dta">
-                Adult program <ArrowDownRight size={16} />
+                Adult program (DTA) <ArrowDownRight size={16} />
               </a>
-              <a href="#other-services">
-                Transportation <ArrowDownRight size={16} />
-              </a>
-              <Link to="/contact?topic=appointment">
-                Book appointment <CalendarDays size={16} />
+              <Link to="/how-it-works">
+                How it works <ArrowDownRight size={16} />
               </Link>
             </div>
           </div>
@@ -246,46 +296,53 @@ function HomePage() {
         <section className="services-section wrap" id="services">
           <div className="section-heading">
             <div>
-              <SectionLabel number="01">Ways we can help</SectionLabel>
+              <SectionLabel number="01">Our programs</SectionLabel>
               <h2>
-                DTA and DTT
+                Support for
                 <br />
-                <em>programs.</em>
+                <em>different stages.</em>
               </h2>
             </div>
             <div className="section-intro">
               <p>
-                Arizona Development Center LLC offers DTA and DTT programs at
-                its Peoria location. Ask us about transportation and a
-                wheelchair van.
+                Two focused Day Treatment and Training programs. Each day can
+                create room for skill-building, relationships, and meaningful
+                participation.
               </p>
-              <ArrowLink to="/services">See all services</ArrowLink>
+              <ArrowLink to="/services">Explore both programs</ArrowLink>
             </div>
           </div>
           <div className="service-list">
             {serviceItems.map((service) => (
               <article
-                className={`service-row ${service.tone}`}
+                className="program-card"
                 id={service.id}
                 key={service.id}
               >
-                <div className="service-row-index">
-                  {service.number}
-                  <span />
+                <div className="program-card-image">
+                  <img src={service.image} alt={service.alt} loading="lazy" />
+                  <span>Representative image</span>
                 </div>
-                <div className="service-row-copy">
+                <div className="program-card-copy">
+                  <span className="program-number">
+                    {service.number} / PROGRAM
+                  </span>
+                  <p className="program-audience">{service.audience}</p>
                   <h3>{service.title}</h3>
                   <p>{service.short}</p>
+                  <ul>
+                    {service.activities.map((activity) => (
+                      <li key={activity}>{activity}</li>
+                    ))}
+                  </ul>
+                  <p className="program-progress">
+                    <strong>How progress is understood</strong>
+                    {service.progress}
+                  </p>
                   <ArrowLink to={`/services#${service.id}`}>
-                    Explore this kind of care
+                    Explore the program
                   </ArrowLink>
                 </div>
-                <div className="service-row-image">
-                  <img src={service.image} alt={service.alt} loading="lazy" />
-                </div>
-                <ArrowLink to={`/services#${service.id}`}>
-                  <span className="sr-only">Explore {service.title}</span>
-                </ArrowLink>
               </article>
             ))}
           </div>
@@ -296,34 +353,37 @@ function HomePage() {
             <div className="about-home-photo">
               <img
                 src={adultProgramImage}
-                alt="Adults taking part in a group arts activity"
+                alt="Representative image of adults taking part in a group arts activity"
                 loading="lazy"
               />
+              <span className="about-photo-note">Representative image</span>
             </div>
             <div className="about-home-copy">
-              <SectionLabel>About Us</SectionLabel>
+              <SectionLabel>Our mission</SectionLabel>
               <h2>
-                A day with room
+                Independence, dignity,
                 <br />
-                <em>to learn and take part.</em>
+                <em>and room to belong.</em>
               </h2>
               <p>
-                Arizona Development Center LLC is a division of DTA/DTT,
-                offering adult day training and child and youth programming at
-                11001 N 99th Ave. in Peoria. Activities can include practical
-                skills, creative projects, movement, and community
-                participation.
+                Arizona Development Center provides Day Treatment and Training
+                in Peoria for adults and children and youth with developmental
+                disabilities. Our approach is grounded in person-centered care:
+                listening to what matters to each individual and supporting
+                meaningful participation in everyday life.
               </p>
               <p className="welcome-note">
-                Everyone is welcome to contact us. We do not discriminate.
+                Families and guardians are valued partners. Every person
+                deserves to be met with respect, choice, and encouragement.
               </p>
               <Link className="button button-dark" to="/about">
-                About Us <ArrowRight size={17} />
+                About the center <ArrowRight size={17} />
               </Link>
             </div>
           </div>
         </section>
 
+        <HomeProcess />
         <HomeTestimonials />
         <HomeFAQs />
         <HomeTeam />
@@ -344,28 +404,82 @@ function HomeTestimonials() {
         <figure className="home-testimonial-photo">
           <img
             src={adultProgramImage}
-            alt="Participants working together during an arts activity"
+            alt="Representative image of adults taking part in a group arts activity"
             loading="lazy"
           />
           <figcaption>
-            Program photo; not a patient portrait or testimonial.
+            Representative image; not an Arizona Development Center participant
+            or testimonial.
           </figcaption>
         </figure>
         <div className="home-testimonials-inner">
-          <SectionLabel>What Patients Say About Us</SectionLabel>
+          <SectionLabel>Person-centered, every day</SectionLabel>
           <h2 id="home-testimonials-title">
-            Their words should
+            Trust grows through
             <br />
-            <em>be their own.</em>
+            <em>the small things.</em>
           </h2>
           <p>
-            Patient and family stories will be shared here only with their
-            permission. We don’t publish invented quotes, names, photos, or
-            ratings. Contact the center with questions about DTA, DTT, and what
-            to expect.
+            A familiar routine, a new skill practiced, a choice respected.
+            Compassionate, person-centered support is built around what matters
+            to the individual, with family involvement shaped by the person’s
+            preferences and needs.
           </p>
-          <ArrowLink to="/contact">Talk with the center</ArrowLink>
+          <ArrowLink to="/about">Learn about our approach</ArrowLink>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function HomeProcess() {
+  const steps = [
+    [
+      "01",
+      "Book Appointment / Initial Consultation",
+      "Tell us what you are looking for. We will listen, answer questions, and talk through program fit and the next step.",
+    ],
+    [
+      "02",
+      "Tailored Care Plan",
+      "If the program may be a fit, discuss an individualized support plan shaped around the person’s strengths, preferences, support needs, and goals.",
+    ],
+    [
+      "03",
+      "Ongoing Support & Care",
+      "Build skills and community participation through a consistent day, with communication about progress and changing needs.",
+    ],
+  ];
+
+  return (
+    <section className="home-process" aria-labelledby="home-process-title">
+      <div className="wrap">
+        <div className="process-heading">
+          <div>
+            <SectionLabel>How it works</SectionLabel>
+            <h2 id="home-process-title">
+              Seamless care in
+              <br />
+              <em>three steps.</em>
+            </h2>
+          </div>
+          <p>
+            Start with a question. We will help make the path forward clearer,
+            one conversation at a time.
+          </p>
+        </div>
+        <div className="process-grid">
+          {steps.map(([number, title, description]) => (
+            <article key={number}>
+              <span className="process-number">{number}</span>
+              <h3>{title}</h3>
+              <p>{description}</p>
+            </article>
+          ))}
+        </div>
+        <Link className="button button-dark" to="/how-it-works">
+          What to expect <ArrowRight size={17} />
+        </Link>
       </div>
     </section>
   );
@@ -405,7 +519,7 @@ function HomeTeam() {
         <figure className="home-team-photo">
           <img
             src={childImage}
-            alt="A representative classroom activity for children and youth"
+            alt="Representative image of children taking part in a group learning activity"
             loading="lazy"
           />
           <figcaption>
@@ -414,23 +528,24 @@ function HomeTeam() {
         </figure>
         <div className="home-team-content">
           <div>
-            <SectionLabel>Our Team</SectionLabel>
+            <SectionLabel>Meet the team</SectionLabel>
             <h2>
-              People supporting
+              Support shaped
               <br />
-              <em>each program.</em>
+              <em>around people.</em>
             </h2>
           </div>
           <div className="home-team-copy">
             <ul className="program-team-list">
-              <li>Adult Day Training (DTA)</li>
-              <li>Child and Youth Training (DTT)</li>
-              <li>Transportation questions and coordination</li>
+              <li>Adult Day Treatment and Training (DTA)</li>
+              <li>Kids Day Treatment and Training (DTT)</li>
+              <li>Family communication and program questions</li>
             </ul>
             <p>
-              Contact the center to ask who you can speak with about a
-              participant’s program, schedule, or transportation. Staff names
-              and roles should be confirmed directly by the center.
+              The people who support each program are important partners in
+              building a steady, respectful day. Contact the center to meet the
+              appropriate program team and ask about training, qualifications,
+              screening, and supervision.
             </p>
             <ArrowLink to="/about">About the center</ArrowLink>
           </div>
@@ -462,7 +577,7 @@ function ServicesPage() {
             <em>and Training.</em>
           </>
         }
-        lead="Arizona Development Center LLC is a division of DTA/DTT, serving adults and children and youth at 11001 N 99th Ave., Peoria, Arizona 85345."
+        lead="Arizona Development Center LLC provides Home and Community-Based Services (HCBS) through DTA for adults and DTT for children and youth at 11001 N 99th Ave., Peoria, Arizona 85345."
       />
       <div className="detail-services wrap">
         {serviceItems.map((service, index) => (
@@ -478,6 +593,15 @@ function ServicesPage() {
               <SectionLabel number={service.number}>Care pathway</SectionLabel>
               <h2>{service.title}</h2>
               <p>{service.detail}</p>
+              <ul className="detail-activity-list">
+                {service.activities.map((activity) => (
+                  <li key={activity}>{activity}</li>
+                ))}
+              </ul>
+              <p className="detail-progress">
+                <strong>How progress is understood</strong>
+                {service.progress}
+              </p>
               <p>
                 We’ll learn what kind of support you’re looking for, answer
                 questions, and explain what can be discussed next. Specific
@@ -531,26 +655,26 @@ function ServicesPage() {
       </section>
       <section className="other-services" id="other-services">
         <div className="wrap other-services-inner">
-          <SectionLabel>Other services</SectionLabel>
+          <SectionLabel>Planning a visit</SectionLabel>
           <h2>
-            Getting there
+            Have a transportation
             <br />
-            <em>is part of the plan.</em>
+            <em>question?</em>
           </h2>
           <div className="other-service-list">
             <article>
-              <h3>Patient / client transportation</h3>
+              <h3>Transportation availability</h3>
               <p>
-                Ask about transportation, including pickup arrangements, service
-                area, scheduling, and availability.
+                Transportation is not confirmed as a current program service.
+                Ask the center whether any options are available and what area
+                they may cover.
               </p>
             </article>
             <article>
               <h3>Wheelchair van</h3>
               <p>
-                Ask the team whether wheelchair van transportation is available
-                for your trip and what mobility details they need to confirm a
-                safe fit.
+                Ask whether an accessible vehicle is available and what details
+                the center needs to confirm a safe fit.
               </p>
             </article>
           </div>
@@ -566,18 +690,18 @@ function StepsPage() {
   const steps = [
     [
       "01",
-      "Tell us a little about the situation",
+      "Book Appointment / Initial Consultation",
       "Share the kind of support you are looking for and the Arizona community where care may be needed. Please leave out private medical details in your first message.",
     ],
     [
       "02",
-      "Talk through the possibilities",
-      "A member of the team can learn more, answer your questions, and explain which services, requirements, and availability need to be confirmed.",
+      "Tailored Care Plan",
+      "If the program may be a fit, talk through the person’s strengths, preferences, support needs, and goals with the team and family.",
     ],
     [
       "03",
-      "Decide on a next step together",
-      "If there may be a fit, the team can explain what information is needed, what the process involves, and what happens next. You can take the time you need to decide.",
+      "Ongoing Support & Care",
+      "When services begin, support focuses on the person’s individualized goals, skill-building, and meaningful participation. Ask how progress and updates are shared.",
     ],
   ];
   return (
@@ -591,7 +715,7 @@ function StepsPage() {
             <em>No pressure.</em>
           </>
         }
-        lead="You can start with a question. We’ll help make the next step clearer, without asking you to arrive with all the answers."
+        lead="Every conversation starts with listening. We will learn what matters to the individual, answer questions, and explain what can be confirmed next."
       />
       <section className="steps-list wrap">
         {steps.map(([number, title, text]) => (
@@ -627,7 +751,7 @@ function AboutPage() {
             <em>checklists.</em>
           </>
         }
-        lead="The best place to begin is with the person: what matters to them, what a good day looks like, and what kind of support feels respectful."
+        lead="Arizona Development Center offers Home and Community-Based Services (HCBS) through DTA and DTT programs in Peoria. Our person-centered approach supports independence, dignity, skill-building, and meaningful community participation."
       />
       <section className="about-story wrap">
         <div className="about-story-image">
@@ -638,18 +762,20 @@ function AboutPage() {
           />
         </div>
         <div>
-          <SectionLabel>Arizona Development Center LLC</SectionLabel>
-          <h2>Structured days. Skills for everyday life.</h2>
+          <SectionLabel>Our commitment</SectionLabel>
+          <h2>Compassionate, person-centered support.</h2>
           <p>
-            Arizona Development Center LLC, a division of DTA/DTT, offers
-            structured day programs for adults and children and youth at its
-            Peoria location.
+            At 11001 N 99th Ave in Peoria, Arizona Development Center provides
+            Day Treatment and Training – Adult (DTA) and Day Treatment and
+            Training – Kids (DTT) for individuals with developmental
+            disabilities, including autism spectrum and behavioral or emotional
+            support needs.
           </p>
           <p>
-            DTA and DTT activities can include social and communication
-            practice, daily living skills, creative projects, learning,
-            movement, and community participation. The center can discuss the
-            program details that fit each person.
+            Each person brings their own strengths, interests, and goals. We
+            value family partnership and encourage questions about how a
+            tailored care plan, skill-building, and progress updates work in
+            practice.
           </p>
           <ArrowLink to="/contact">Meet us in conversation</ArrowLink>
         </div>
@@ -731,7 +857,7 @@ function FindCarePage() {
             eligibility, support needs, safety, and current availability are
             discussed individually.
           </p>
-          <ArrowLink to="/contact?topic=appointment">
+          <ArrowLink to="/book">
             Ask about a program
           </ArrowLink>
         </div>
@@ -824,11 +950,35 @@ function SafetyPage() {
 const faqs = [
   [
     "What do DTA and DTT mean?",
-    "DTA is Day Treatment and Training for Adults. DTT is Day Treatment and Training for Children and Youth. Contact the Peoria center to ask about program details and current availability.",
+    "DTA is Day Treatment and Training – Adult. DTT is Day Treatment and Training for Kids, also described as Children & Youth. Arizona Development Center offers both programs in Peoria. Ask the team about current program details and availability.",
   ],
   [
     "What activities are part of DTA?",
-    "A typical day may include social skills, teamwork, life-skills practice, reading or writing, light exercise, games, music, arts and crafts, and community or group activities. The daily schedule can vary.",
+    "Activities may include social connection, teamwork, daily living skills, learning activities, movement, games, music, creative projects, and community participation. The schedule can vary; contact the center to confirm what a typical day currently includes.",
+  ],
+  [
+    "What does DTT offer for children and youth?",
+    "DTT activities may include age-appropriate learning, communication, sensory-motor, cognitive, social, and independence-building opportunities. Ask the center about program fit and current availability for your child.",
+  ],
+  [
+    "Who may be eligible for a program?",
+    "Eligibility and program fit depend on the person’s circumstances, current support plan, service authorization, and program requirements. Contact the center and the person’s support coordinator or referring professional to understand the applicable steps. Asking a question does not commit you to enrollment.",
+  ],
+  [
+    "What does enrollment involve?",
+    "The steps and documents needed can vary. After an initial conversation, ask the center what information, service authorization, assessments, or meetings are required, how long the process may take, and when a start date can be confirmed.",
+  ],
+  [
+    "Does Arizona Development Center accept insurance or AHCCCS?",
+    "Coverage, funding, and authorization can depend on the individual’s program and current service arrangements. Please confirm accepted funding sources, any costs, and required authorizations directly with the center before making plans.",
+  ],
+  [
+    "Can family members be involved? Is parent training available?",
+    "Family partnership is important. Ask how family members or guardians can be involved in discussions and updates, with the individual’s preferences and applicable privacy permissions respected. Confirm directly whether parent training is currently offered.",
+  ],
+  [
+    "How are goals and progress discussed?",
+    "Support should reflect the person’s strengths, preferences, and individualized goals. Ask how the team tracks participation and skill-building, reviews the support plan, and shares updates with the individual and family.",
   ],
   [
     "What should members bring for lunch?",
@@ -836,11 +986,15 @@ const faqs = [
   ],
   [
     "Can you provide pickup or wheelchair van transportation?",
-    "Ask the center about pickup arrangements, service area, scheduling, wheelchair van availability, and the information needed to confirm a safe fit.",
+    "Transportation was not confirmed as a current program service. Contact the center to ask whether transportation is available, what area it may cover, and whether an accessible vehicle can be arranged.",
+  ],
+  [
+    "What happens during an initial consultation?",
+    "You can ask about DTA or DTT, share what you hope to learn, and hear what information or next steps may be needed. You do not need to have every answer ready, and you should not send sensitive health details through the website form.",
   ],
   [
     "Who can contact the center?",
-    "Everyone is welcome to contact us. We do not discriminate. Program participation, eligibility, support needs, safety, and availability are discussed individually.",
+    "Individuals, parents, guardians, family members, and support coordinators can contact the center with questions. Program participation, eligibility, support needs, and availability are discussed individually.",
   ],
   [
     "Can I send health details through the contact form?",
@@ -878,17 +1032,26 @@ function FAQPage() {
   );
 }
 
+function topicFromParam(param) {
+  if (param === "careers") return "Caregiver opportunities";
+  if (param === "appointment") return "Care consultation / appointment";
+  return "";
+}
+
 function ContactPage() {
-  const params = new URLSearchParams(window.location.search);
+  const [searchParams] = useSearchParams();
+  const topicParam = searchParams.get("topic");
   const [status, setStatus] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const contactEmail = import.meta.env.VITE_CONTACT_EMAIL;
-  const [topic, setTopic] = useState(
-    params.get("topic") === "careers"
-      ? "Caregiver opportunities"
-      : params.get("topic") === "appointment"
-        ? "Care consultation / appointment"
-        : "",
-  );
+  const contactEndpoint = import.meta.env.VITE_CONTACT_ENDPOINT;
+  const [topic, setTopic] = useState(() => topicFromParam(topicParam));
+
+  // Keep the form in sync with the URL when navigating between
+  // /contact, /contact?topic=appointment and /contact?topic=careers
+  // without a full page reload (e.g. from the footer links).
+  useEffect(() => setTopic(topicFromParam(topicParam)), [topicParam]);
+
   const isAppointment = topic === "Care consultation / appointment";
   const localToday = new Date();
   localToday.setMinutes(
@@ -896,13 +1059,50 @@ function ContactPage() {
   );
   const minimumDate = localToday.toISOString().slice(0, 10);
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const formData = new FormData(form);
     if (formData.get("website")) {
       setStatus("We could not process that request. Please try again.");
       return;
     }
+
+    // Preferred path: post to a configured form endpoint when one is set.
+    if (contactEndpoint) {
+      setSubmitting(true);
+      setStatus("");
+      try {
+        const response = await fetch(contactEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.get("name"),
+            email: formData.get("email"),
+            phone: formData.get("phone") || "",
+            location: formData.get("location"),
+            interest: formData.get("interest"),
+            preferredDate: formData.get("preferred-date") || "",
+            preferredTime: formData.get("preferred-time") || "",
+            isAppointment,
+          }),
+        });
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        setStatus(
+          "Thank you — your request was sent. The care team will follow up with you.",
+        );
+        form.reset();
+        setTopic(topicFromParam(topicParam));
+      } catch {
+        setStatus(
+          "We could not send that right now. Please try again, or use the email link on this page.",
+        );
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
     if (!contactEmail) {
       setStatus(
         "The care team’s official email address has not been added yet. Please confirm it before publishing this form.",
@@ -929,12 +1129,12 @@ function ContactPage() {
         label="Contact"
         title={
           <>
-            Let’s talk about
+            Request Home &
             <br />
-            <em>what would help.</em>
+            <em>Community-Based Support.</em>
           </>
         }
-        lead="A first conversation can be simple. Share how to reach you and what kind of support you’re asking about. Please keep private health details out of this form."
+        lead="Request a free initial consultation about DTA or DTT in Peoria. Share how to reach you and what you would like to discuss. Please keep private health details out of this form."
       />
       <section className="contact-layout wrap">
         <div className="contact-aside">
@@ -942,7 +1142,7 @@ function ContactPage() {
             <Phone size={23} />
           </span>
           <h2>Visit the Peoria center</h2>
-          <p>Arizona Development Center LLC, a division of DTA/DTT.</p>
+          <p>Home and Community-Based Services (HCBS) through DTA and DTT.</p>
           <a
             className="email-link location-link"
             href="https://maps.google.com/?q=11001+N+99th+Ave,+Peoria,+AZ+85345"
@@ -964,11 +1164,13 @@ function ContactPage() {
         <form className="contact-form" onSubmit={handleSubmit}>
           <div className="form-heading">
             <h2>
-              {isAppointment ? "Request an appointment" : "Send a short note"}
+              {isAppointment
+                ? "Request a free consultation"
+                : "Send a short note"}
             </h2>
             <p>
               {isAppointment
-                ? "Share a preferred day and time. The team will confirm availability."
+                ? "Share a preferred day and time. The team will follow up to discuss availability. This is a request, not a confirmed appointment."
                 : "Required fields are marked with an asterisk."}
             </p>
           </div>
@@ -1019,10 +1221,9 @@ function ContactPage() {
               required
             >
               <option value="">Choose one</option>
-              <option>DTA | Adult Day Training</option>
-              <option>DTT | Child and Youth Training</option>
-              <option>Patient / client transportation</option>
-              <option>Wheelchair van</option>
+              <option>Day Treatment and Training – Adult (DTA)</option>
+              <option>Day Treatment and Training – Kids (DTT)</option>
+              <option>Transportation question</option>
               <option>Caregiver opportunities</option>
               <option>Care consultation / appointment</option>
               <option>Something else</option>
@@ -1046,16 +1247,20 @@ function ContactPage() {
             </div>
           )}
           <p className="form-privacy">
-            {contactEmail
-              ? "Your email app will open with a brief message to the care team. Please do not include diagnoses, medications, or other sensitive health information."
-              : "This form is not ready to send. The business must configure its official contact email first. Please do not include diagnoses, medications, or other sensitive health information."}
+            {contactEndpoint
+              ? "Your request will be sent securely to the care team. Please do not include diagnoses, medications, or other sensitive health information."
+              : contactEmail
+                ? "Your email app will open with a brief message to the care team. Please do not include diagnoses, medications, or other sensitive health information."
+                : "This form is not ready to send. The business must configure a contact endpoint or its official contact email first. Please do not include diagnoses, medications, or other sensitive health information."}
           </p>
           <button
             className="button button-dark"
             type="submit"
-            disabled={!contactEmail}
+            disabled={(!contactEmail && !contactEndpoint) || submitting}
+            aria-busy={submitting}
           >
-            Continue in email <ArrowRight size={17} />
+            {submitting ? "Sending…" : "Request a consultation"}
+            <ArrowRight size={17} />
           </button>
           {status && (
             <p className="form-status" role="status">
@@ -1091,7 +1296,9 @@ function PolicyPage({ title, intro, sections }) {
 
 function CookiePage() {
   const [analyticsAllowed, setAnalyticsAllowed] = useState(
-    () => localStorage.getItem("analytics-preference") === "allowed",
+    () =>
+      typeof localStorage !== "undefined" &&
+      localStorage.getItem("analytics-preference") === "allowed",
   );
   const [saved, setSaved] = useState(false);
   return (
@@ -1159,15 +1366,15 @@ function ContactBanner() {
     <section className="contact-banner">
       <div className="wrap banner-inner">
         <div>
-          <SectionLabel>One conversation can help</SectionLabel>
+          <SectionLabel>Your first conversation is simple</SectionLabel>
           <h2>
-            Let’s find a good
+            Start with a question.
             <br />
-            <em>place to begin.</em>
+            <em>We’ll listen.</em>
           </h2>
         </div>
-        <Link className="button button-paper" to="/contact?topic=appointment">
-          Book appointment <CalendarDays size={17} />
+        <Link className="button button-paper" to="/book">
+          Book Free Consultation <CalendarDays size={17} />
         </Link>
       </div>
     </section>
@@ -1213,7 +1420,7 @@ function SiteFooter() {
               alt="Arizona Development Center DTA and DTT"
             />
           </Link>
-          <p>Arizona Development Center LLC, a division of DTA/DTT.</p>
+          <p>Home and Community-Based Services (HCBS) through DTA and DTT.</p>
           <address>
             11001 N 99th Ave.
             <br />
@@ -1235,10 +1442,12 @@ function SiteFooter() {
           <Link to="/services">Services</Link>
           <Link to="/how-it-works">How it works</Link>
           <Link to="/about">Our approach</Link>
+          <Link to="/careers">Careers</Link>
           <Link to="/safety">Safety & quality</Link>
         </div>
         <div className="footer-column">
           <h2>Programs & contact</h2>
+          <Link to="/book">Book a consultation</Link>
           <Link to="/find-care">Program inquiries</Link>
           <Link to="/faqs">Frequently asked questions</Link>
           <Link to="/contact">Contact</Link>
@@ -1268,12 +1477,12 @@ function App() {
   useEffect(() => {
     const metadata = {
       "/": [
-        "DTA and DTT programs in Peoria",
-        "Arizona Development Center LLC provides DTA and DTT programs in Peoria, Arizona, with transportation options to ask about.",
+        "DTA and DTT in Peoria, Arizona",
+        "Arizona Development Center offers Home and Community-Based Services (HCBS) through adult DTA and children and youth DTT programs in Peoria, Arizona.",
       ],
       "/services": [
-        "Care services in Arizona",
-        "Explore DTA Adult Day Training, DTT Child and Youth Training, patient/client transportation, and wheelchair van service in Peoria, Arizona.",
+        "DTA and DTT programs",
+        "Explore Day Treatment and Training – Adult (DTA) and Day Treatment and Training – Kids (DTT) at Arizona Development Center in Peoria, Arizona.",
       ],
       "/how-it-works": [
         "How getting started works",
@@ -1281,7 +1490,7 @@ function App() {
       ],
       "/about": [
         "Our approach to care",
-        "Learn about Arizona Development Center LLC, a division of DTA/DTT, in Peoria, Arizona.",
+        "Learn about Arizona Development Center’s person-centered HCBS approach and DTA and DTT programs in Peoria, Arizona.",
       ],
       "/careers": [
         "Careers in care",
@@ -1294,6 +1503,14 @@ function App() {
       "/contact": [
         "Contact the care team",
         "Contact Arizona Development Center LLC at 11001 N 99th Ave., Peoria, AZ 85345.",
+      ],
+      "/book": [
+        "Book a free consultation",
+        "Request a free consultation about DTA or DTT at Arizona Development Center in Peoria, Arizona. A short conversation with the care team.",
+      ],
+      "/admin": [
+        "Admin sign in",
+        "Restricted admin area for Arizona Development Center.",
       ],
       "/safety": [
         "Safety and quality questions",
@@ -1351,6 +1568,8 @@ function App() {
         <Route path="/careers" element={<CareersPage />} />
         <Route path="/find-care" element={<FindCarePage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/book" element={<BookingPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/safety" element={<SafetyPage />} />
         <Route path="/faqs" element={<FAQPage />} />
         <Route

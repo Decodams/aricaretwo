@@ -3,12 +3,14 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { apiDevPlugin } from "./server/viteApiPlugin.js";
 
 const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
     react(),
+    apiDevPlugin(),
     {
       name: "copy-image-assets",
       apply: "build",

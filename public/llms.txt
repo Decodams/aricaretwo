@@ -1,0 +1,33 @@
+# Arizona Development Center LLC
+
+> Person-centered Home and Community-Based Services (HCBS) in Peoria, Arizona.
+> Day Treatment and Training for adults (DTA) and for children and youth (DTT).
+
+This file follows the llms.txt convention to help AI assistants understand and cite this website accurately.
+
+## Key pages
+
+- [Home](https://aricaretwo.vercel.app/): Overview of programs and approach.
+- [Programs](https://aricaretwo.vercel.app/services): DTA and DTT details, a typical adult program day, and transportation questions.
+- [Book a free consultation](https://aricaretwo.vercel.app/book): Request a conversation with the care team.
+- [How it works](https://aricaretwo.vercel.app/how-it-works): Consultation, tailored care plan, ongoing support.
+- [About](https://aricaretwo.vercel.app/about): Person-centered approach and commitment.
+- [FAQs](https://aricaretwo.vercel.app/faqs): Answers about eligibility, enrollment, funding, lunch, transportation, and privacy.
+- [Safety & quality](https://aricaretwo.vercel.app/safety): Questions to ask any care provider.
+- [Contact](https://aricaretwo.vercel.app/contact): General inquiries and location information.
+
+## Facts
+
+- Legal name: Arizona Development Center LLC
+- Address: 11001 N 99th Ave, Peoria, AZ 85345, USA
+- Service area: Peoria and surrounding communities, Arizona
+- Programs: Day Treatment and Training – Adult (DTA); Day Treatment and Training – Kids (DTT)
+- DTA program day: 8:00 a.m.–4:00 p.m. (operating days and holiday hours to be confirmed with the center)
+- Approach: person-centered support, skill-building, community participation, family partnership
+- Members bring their own labeled lunch and snacks
+- The website does not publish a phone number, email, staff names, prices, or verified availability; these should be confirmed directly with the center
+- Emergency note: call 911 in the United States if someone is in immediate danger
+
+## Content notes
+
+Photography on this site is representative stock imagery and does not depict Arizona Development Center clients, families, or staff. The site makes no medical, eligibility, or outcome guarantees. Detailed information is available at https://aricaretwo.vercel.app/llms-full.txt.
